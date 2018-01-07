@@ -1,0 +1,4 @@
+rootProject.name = 'sonic-sync'
+
+include 'modules:client'
+include 'modules:core'
