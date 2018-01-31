@@ -25,7 +25,6 @@ public class UserProfileCreationStep implements IStep {
 		// generate keys
 		KeyPair encryptionKeys = encryption.generateRSAKeyPair(Constants.KEYLENGTH_USER_KEYS);
 		KeyPair protectionKeys = encryption.generateRSAKeyPair(Constants.KEYLENGTH_PROTECTION);
-
 		context.provideUserProfile(new UserProfile(userId, encryptionKeys, protectionKeys));
 	}
 

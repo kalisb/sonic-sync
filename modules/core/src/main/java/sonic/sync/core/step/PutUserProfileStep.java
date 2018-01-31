@@ -1,18 +1,14 @@
 package sonic.sync.core.step;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.PublicKey;
+import com.frostwire.jlibtorrent.Sha1Hash;
 
 import sonic.sync.core.configuration.Parameters;
 import sonic.sync.core.exception.PutFailedException;
 import sonic.sync.core.file.RegisterProcessContext;
-import sonic.sync.core.libtorrent.Sha1Hash;
 import sonic.sync.core.network.BaseNetworkContent;
 import sonic.sync.core.network.EncryptedNetworkContent;
 import sonic.sync.core.security.DataManager;
-import sonic.sync.core.security.DefaultEncryption;
 import sonic.sync.core.util.Constants;
 
 public class PutUserProfileStep implements IStep {
@@ -32,7 +28,6 @@ public class PutUserProfileStep implements IStep {
 			System.err.println("Start encrypting the user profile of the new user " + context.consumeUserId());
 			EncryptedNetworkContent encrypted = dataManager.getEncryption().encryptAES(context.consumeUserProfile(),
 					context.consumeUserProfileEncryptionKeys());
-			encrypted.generateVersionKey();
 			System.err.println("User profile successfully encrypted. Start putting it...");
 			put(context.consumeUserProflieLocationKey(), Constants.USER_PROFILE, encrypted,
 					context.consumeUserProfileProtectionKeys());

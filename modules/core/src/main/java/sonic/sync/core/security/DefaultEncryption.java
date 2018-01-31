@@ -78,8 +78,7 @@ public class DefaultEncryption implements IEncryption {
 
 	@Override
 	public KeyPair generateRSAKeyPair(RSA_KEYLENGTH length) {
-		// TODO Auto-generated method stub
-		return null;
+		return EncryptionUtil.generateRSAKeyPair(length, securityProvider);
 	}
 
 	public static PublicKey key2String(PublicKey locationKey) {

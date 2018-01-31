@@ -4,11 +4,12 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 
+import com.frostwire.jlibtorrent.LibTorrent;
+import com.frostwire.jlibtorrent.SessionManager;
+
 import sonic.sync.core.configuration.FileConfiguration;
 import sonic.sync.core.configuration.NetworkConfiguration;
 import sonic.sync.core.exception.NoSessionException;
-import sonic.sync.core.libtorrent.LibTorrent;
-import sonic.sync.core.libtorrent.SessionManager;
 import sonic.sync.core.network.DownloadManager;
 import sonic.sync.core.security.DataManager;
 import sonic.sync.core.security.IEncryption;
@@ -27,9 +28,9 @@ public class NetworkManager {
 	public NetworkManager(IEncryption encryption, ISerialize serializer, FileConfiguration fileConfiguration) {
 		this.encryption = encryption;
 		this.serializer = serializer;
-		//System.setProperty("jlibtorrent.jni.path", "/home/kalisb/frostwire-jlibtorrent/src/main/java/com/frostwire/jlibtorrent/swig/libtorrent_jni.java");
+		System.setProperty("jlibtorrent.jni.path", "C:\\Program Files\\Git\\sonic-sync\\modules\\client\\jlibtorrent.dll");
 
-		//System.setProperty("java.library.path", "/home/kalisb/libjlibtorrent.so");
+		//System.setProperty("java.library.path", "jlibtorrent.dll");
         System.out.println("Using libtorrent version: " + LibTorrent.version());
 
 		this.sessionManager = new SessionManager();

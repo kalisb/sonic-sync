@@ -25,11 +25,11 @@ public class CheckWriteAccessStep implements IStep {
 		File root = context.consumeRoot();
 
 		System.err.println("Check write access in folder " + file.getParentFile().getName() + " for file " + file.getName());
-
+/*
 		UserProfile userProfile = null;
 		try {
 			// fetch user profile (only read)
-			userProfile = profileManager.readUserProfile();
+			//userProfile = profileManager.readUserProfile();
 		} catch (GetFailedException e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace();
@@ -53,7 +53,7 @@ public class CheckWriteAccessStep implements IStep {
 		System.err.println("Write access check for file " + parentNode.getFullPath() + file.getName() + " has been passed.");
 		// provide the content protection keys, use same for chunks and meta file
 		context.provideChunkProtectionKeys(parentNode.getProtectionKeys());
-		context.provideMetaFileProtectionKeys(parentNode.getProtectionKeys());
+		context.provideMetaFileProtectionKeys(parentNode.getProtectionKeys());*/
 		
 	}
 

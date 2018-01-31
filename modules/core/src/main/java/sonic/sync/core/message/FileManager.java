@@ -11,7 +11,10 @@ import sonic.sync.core.file.FileNode;
 import sonic.sync.core.security.DataManager;
 import sonic.sync.core.security.UserPermission;
 import sonic.sync.core.security.UserPermission.PermissionType;
+import sonic.sync.core.step.AddIndexToUserProfileStep;
 import sonic.sync.core.step.CheckWriteAccessStep;
+import sonic.sync.core.step.IStep;
+import sonic.sync.core.step.PrepareMagnetCreationStep;
 import sonic.sync.core.step.ValidateFileStep;
 import sonic.sync.core.util.FileUtil;
 
@@ -56,17 +59,15 @@ public class FileManager {
 
 		process.add(new ValidateFileStep(context));
 		process.add(new CheckWriteAccessStep(context, session.getProfileManager()));
-	/*	process.add(new CreateFileKeysStep(context));
-		if (file.isFile()) {
-			// file needs to upload the chunks and a meta file
-			process.add(new InitializeChunksStep(context, dataManager));
-			process.add(new CreateMetaFileStep(context));
-			process.add(new PutMetaFileStep(context, dataManager));
-		}
 		process.add(new AddIndexToUserProfileStep(context, session.getProfileManager()));
-		process.add(new PrepareAddNotificationStep(context));
-		process.add(createNotificationProcess(context, networkManager));*/
+		process.add(new PrepareMagnetCreationStep(context, networkManager));
+		process.add(createNotificationProcess(context, networkManager));
 		process.execute();
+	}
+
+	private IStep createNotificationProcess(AddFileProcessContext context, NetworkManager networkManager2) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public void createDeleteProcess(File file) throws NoPeerConnectionException, NoSessionException,

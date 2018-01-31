@@ -1,8 +1,10 @@
 package sonic.sync.core.configuration;
 
 import java.security.KeyPair;
+import java.util.Arrays;
 
-import sonic.sync.core.libtorrent.Sha1Hash;
+import com.frostwire.jlibtorrent.Sha1Hash;
+
 import sonic.sync.core.network.BaseNetworkContent;
 
 public class Parameters {
@@ -16,7 +18,14 @@ public class Parameters {
 
 	public Parameters setLocationKey(String locationKey) {
 		this.locationKey = locationKey;
-		this.lKey =  new Sha1Hash(locationKey);
+		byte[] locationKeyBytes = new byte[20];
+		Arrays.fill(locationKeyBytes, (byte) 0 );
+		byte[] bytes = locationKey.getBytes();
+		int size = locationKey.getBytes().length > 20 ? 20 : locationKey.getBytes().length;
+		for (int i = 0; i < size; i++) {
+			locationKeyBytes[i] = bytes[i];
+		}
+		this.lKey =  new Sha1Hash(locationKeyBytes);
 		return this;
 	}
 	
@@ -26,7 +35,14 @@ public class Parameters {
 
 	public Parameters setContentKey(String contentKey) {
 		this.contentKey = contentKey;
-		this.cKey = new Sha1Hash(contentKey);
+		byte[] contentKeyBytes = new byte[20];
+		Arrays.fill(contentKeyBytes, (byte) 0 );
+		byte[] bytes = locationKey.getBytes();
+		int size = bytes.length > 20 ? 20 : bytes.length;
+		for (int i = 0; i < size; i++) {
+			contentKeyBytes[i] = bytes[i];
+		}
+		this.cKey = new Sha1Hash(contentKeyBytes);
 		return this;
 	}
 	

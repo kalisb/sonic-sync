@@ -42,14 +42,9 @@ public class UserCredentials {
 	public String getPin() {
 		return pin;
 	}
-	
-	public String getLocationCache() {
-		return locationCache;
-	}
 
 	public String getProfileLocationKey() {
-		// TODO Auto-generated method stub
-		return null;
+		return locationCache;
 	}
 
 }

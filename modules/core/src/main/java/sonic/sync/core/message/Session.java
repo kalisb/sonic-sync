@@ -48,8 +48,6 @@ public class Session {
 	}
 
 	public File getRootFile() {
-		System.out.println("File agent: " + getFileAgent());
-		System.out.println("Root: " + getFileAgent().getRoot());
 		return getFileAgent().getRoot();
 	}
 

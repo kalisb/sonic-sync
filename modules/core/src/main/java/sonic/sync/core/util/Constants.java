@@ -23,6 +23,7 @@ public interface Constants {
 	static final String KEYLENGTH_META_DOCUMENT = null;
 	static final String META_DOCUMENT = null;
 	static final String LARGE_FILE_UPDATE = null;
-	static final RSA_KEYLENGTH KEYLENGTH_USER_KEYS = null;
-	static final RSA_KEYLENGTH KEYLENGTH_PROTECTION = null;
+	static final RSA_KEYLENGTH KEYLENGTH_USER_KEYS = RSA_KEYLENGTH.BIT_2048;
+	static final RSA_KEYLENGTH KEYLENGTH_PROTECTION = RSA_KEYLENGTH.BIT_1024;
+	static final String META_FILE_NAME = "ss.conf";
 }

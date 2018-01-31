@@ -10,6 +10,7 @@ import sonic.sync.core.security.IEncryption;
 public class AddFileProcessContext implements IUpdateContext {
 
 	private File file;
+	private String magnetLink;
 	private Session session;
 	private FileConfiguration fileConfiguration;
 	private IEncryption encryption;
@@ -25,6 +26,14 @@ public class AddFileProcessContext implements IUpdateContext {
 		this.encryption = encryption;
 	}
 
+	public String getMagnetLink() {
+		return magnetLink;
+	}
+	
+	public void setMagnetLink(String magnetLink) {
+		this.magnetLink = magnetLink;
+	}
+	
 	@Override
 	public File consumeFile() {
 		return file;

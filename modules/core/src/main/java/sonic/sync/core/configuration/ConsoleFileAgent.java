@@ -19,9 +19,5 @@ public class ConsoleFileAgent extends FileAgent {
 	public void writeCache(String key, byte[] data) throws IOException {
 		FileUtils.writeByteArrayToFile(new File(cache, key), data);
 	}
-	
-	public byte[] readCache(String key) throws IOException {
-		return FileUtils.readFileToByteArray(new File(cache, key));
-	}
 
 }

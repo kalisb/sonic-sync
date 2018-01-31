@@ -11,9 +11,18 @@ import sonic.sync.core.serializer.ISerialize;
 
 public class FileUtil {
 
-	public static PersistentMetaData readPersistentMetaData(Object fileAgent, ISerialize serializer) {
-		// TODO Auto-generated method stub
-		return null;
+	public static PersistentMetaData readPersistentMetaData(FileAgent fileAgent, ISerialize serializer) {
+		try {
+			byte[] content = fileAgent.readCache(Constants.META_FILE_NAME);
+			if (content == null || content.length == 0) {
+				System.err.println("Not found the meta data. Create new one");
+				return new PersistentMetaData();
+			}
+			return (PersistentMetaData) serializer.deserialize(content);
+		} catch (IOException | ClassNotFoundException e) {
+			System.err.println("Cannot deserialize meta data. Reason: " + e.getMessage());
+			return new PersistentMetaData();
+}
 	}
 
 	public static boolean isInSharedDirectory(FileAgent fileAgent, File file) {

@@ -4,10 +4,11 @@ import java.io.IOException;
 
 import org.zeromq.ZContext;
 
+import com.frostwire.jlibtorrent.Entry;
+import com.frostwire.jlibtorrent.SessionManager;
+import com.frostwire.jlibtorrent.Sha1Hash;
+
 import sonic.sync.core.configuration.Parameters;
-import sonic.sync.core.libtorrent.Entry;
-import sonic.sync.core.libtorrent.SessionManager;
-import sonic.sync.core.libtorrent.Sha1Hash;
 import sonic.sync.core.network.BaseNetworkContent;
 import sonic.sync.core.network.EncryptedNetworkContent;
 import sonic.sync.core.serializer.ISerialize;
