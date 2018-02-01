@@ -4,8 +4,12 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 
+import com.frostwire.jlibtorrent.AlertListener;
 import com.frostwire.jlibtorrent.LibTorrent;
+import com.frostwire.jlibtorrent.SessionHandle;
 import com.frostwire.jlibtorrent.SessionManager;
+import com.frostwire.jlibtorrent.alerts.Alert;
+import com.frostwire.jlibtorrent.alerts.AlertType;
 
 import sonic.sync.core.configuration.FileConfiguration;
 import sonic.sync.core.configuration.NetworkConfiguration;
@@ -21,31 +25,44 @@ public class NetworkManager {
 	private ISerialize serializer;
 	private String nodeID;
 	private Session session;
-	private DataManager dataManager;
+	private  DataManager dataManager;
 	private ZContext conection;
 	private SessionManager sessionManager;
+    private SessionHandle sessionHandle;
 
 	public NetworkManager(IEncryption encryption, ISerialize serializer, FileConfiguration fileConfiguration) {
 		this.encryption = encryption;
 		this.serializer = serializer;
 		System.setProperty("jlibtorrent.jni.path", "C:\\Program Files\\Git\\sonic-sync\\modules\\client\\jlibtorrent.dll");
-
-		//System.setProperty("java.library.path", "jlibtorrent.dll");
         System.out.println("Using libtorrent version: " + LibTorrent.version());
 
 		this.sessionManager = new SessionManager();
+		this.sessionManager.addListener(new AlertListener() {
+
+            @Override
+            public int[] types() {
+                return null;
+            }
+
+            @Override
+            public void alert(Alert<?> alert) {
+                System.out.println(alert.message());
+            }
+
+        });
 	}
 
 	public boolean connect(NetworkConfiguration networkConfig) {
 		sessionManager.start();
 		sessionManager.startDht();
+	    sessionHandle = new SessionHandle(sessionManager.swig());
 		config = networkConfig;
 		dataManager = new DataManager(networkConfig.getContext(), serializer, encryption, sessionManager);
-		this.nodeID = networkConfig.getNodeID();
+		nodeID = networkConfig.getNodeID();
 		String self = networkConfig.getNodeID();
 		//  Bind state backend to endpoint
 		Socket statebe = networkConfig.getContext().createSocket(ZMQ.PUB);
-		this.conection = networkConfig.getContext();
+		conection = networkConfig.getContext();
 		return statebe.bind(String.format("ipc://%s-state.ipc", self));
 	}
 
@@ -89,5 +106,9 @@ public class NetworkManager {
 	public String getUserId() {
 		return nodeID;
 	}
+
+    public SessionHandle getSessionHandler() {
+        return sessionHandle;
+    }
 
 }

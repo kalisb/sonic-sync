@@ -2,6 +2,11 @@ package sonic.sync.core.message;
 
 import java.io.File;
 import org.apache.commons.io.monitor.FileAlterationListener;
+
+import com.frostwire.jlibtorrent.AddTorrentParams;
+import com.frostwire.jlibtorrent.ErrorCode;
+import com.frostwire.jlibtorrent.TorrentFlags;
+import com.frostwire.jlibtorrent.TorrentInfo;
 import sonic.sync.core.configuration.FileConfiguration;
 import sonic.sync.core.exception.NoPeerConnectionException;
 import sonic.sync.core.exception.NoSessionException;
@@ -61,13 +66,29 @@ public class FileManager {
 		process.add(new CheckWriteAccessStep(context, session.getProfileManager()));
 		process.add(new AddIndexToUserProfileStep(context, session.getProfileManager()));
 		process.add(new PrepareMagnetCreationStep(context, networkManager));
-		process.add(createNotificationProcess(context, networkManager));
+		process.add(createNotificationProcess(context));
 		process.execute();
 	}
 
-	private IStep createNotificationProcess(AddFileProcessContext context, NetworkManager networkManager2) {
-		// TODO Auto-generated method stub
-		return null;
+	private IStep createNotificationProcess(final AddFileProcessContext context) {
+	   return new IStep() {
+            
+            @Override
+            public void execute() {
+                File torrentFile = context.getTorrent();
+                seedTorrent(torrentFile, context.consumeRoot());
+            }
+
+            private void seedTorrent(File torrentFile, File consumeRoot) {
+                AddTorrentParams torrentParams = new AddTorrentParams();
+                TorrentInfo ti = new TorrentInfo(torrentFile);
+                torrentParams.torrentInfo(ti);
+                torrentParams.savePath(torrentFile.getParent());
+                torrentParams.flags(TorrentFlags.SEED_MODE);
+                networkManager.getSessionHandler().addTorrent(torrentParams, new ErrorCode()).swig();
+                
+            }
+        };
 	}
 
 	public void createDeleteProcess(File file) throws NoPeerConnectionException, NoSessionException,

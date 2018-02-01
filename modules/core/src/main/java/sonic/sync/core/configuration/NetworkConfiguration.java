@@ -1,6 +1,7 @@
 package sonic.sync.core.configuration;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.zeromq.ZContext;
 
@@ -14,9 +15,9 @@ public class NetworkConfiguration {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static NetworkConfiguration createInitial(String nodeID) {
+	public static NetworkConfiguration createInitial(String nodeID) throws UnknownHostException {
 		ctx = new ZContext();
-		return new NetworkConfiguration(nodeID, null).setPort(AUTO_PORT);
+		return new NetworkConfiguration(nodeID, null).setPort(AUTO_PORT).setBootstrap(InetAddress.getLocalHost());
 	}
 
 	private String nodeID;

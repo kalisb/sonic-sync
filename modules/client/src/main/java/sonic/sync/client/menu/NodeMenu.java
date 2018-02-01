@@ -33,7 +33,7 @@ public class NodeMenu extends ConsoleMenu {
 	@Override
 	public void createItems() {
 		createNetworkMenuItem = new ConsoleMenuItem("Create New Network") {
-			protected void execute() {
+			protected void execute() throws UnknownHostException {
 				buildNode();
 				connectNode(NetworkConfiguration.createInitial(askNodeID()));
 			}

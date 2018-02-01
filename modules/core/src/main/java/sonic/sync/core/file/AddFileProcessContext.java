@@ -11,6 +11,7 @@ public class AddFileProcessContext implements IUpdateContext {
 
 	private File file;
 	private String magnetLink;
+	private File torrent;
 	private Session session;
 	private FileConfiguration fileConfiguration;
 	private IEncryption encryption;
@@ -43,6 +44,14 @@ public class AddFileProcessContext implements IUpdateContext {
 	public FileConfiguration consumeFileConfiguration() {
 		return fileConfiguration;
 	}
+	
+	public File getTorrent() {
+        return torrent;
+    }
+	
+	public void setTorrent(File torrent) {
+        this.torrent = torrent;
+    }
 
 	@Override
 	public void setLargeFile(boolean largeFile) {

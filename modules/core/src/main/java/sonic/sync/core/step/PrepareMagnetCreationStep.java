@@ -31,8 +31,7 @@ public class PrepareMagnetCreationStep implements IStep {
 		File file = context.consumeFile();
 		TorrentBuilder.Result result = null;
 		try {
-			System.out.println(networkManager.getConfiguration().getBootstrapAddress().getHostAddress());
-			String hostName = networkManager.getConfiguration().getNodeID();
+			String hostName = networkManager.getConfiguration().getBootstrapAddress().getHostAddress();
 			result = new TorrentBuilder().path(file)
 					.creator(hostName)
 					.setPrivate(false)
@@ -45,6 +44,7 @@ public class PrepareMagnetCreationStep implements IStep {
 		if (result != null) {
 			entry torrentEntry = result.entry().swig();
 			torrentFile = new File(FileUtils.getTempDirectory() + File.separator + file.getName() + ".torrent");
+			context.setTorrent(torrentFile);
 			try (OutputStream os = new FileOutputStream(torrentFile)) {
 				os.write(Vectors.byte_vector2bytes(torrentEntry.bencode()));
 			} catch (IOException e) {
