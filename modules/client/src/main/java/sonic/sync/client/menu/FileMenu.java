@@ -78,7 +78,7 @@ public class FileMenu extends ConsoleMenu {
 				if (file == null) {
 					return;
 				}
-				
+
 				try {
 					menus.getNodeMenu().getNode().getFileManager()
 					.createAddProcess(file);
@@ -87,6 +87,16 @@ public class FileMenu extends ConsoleMenu {
 					e.printStackTrace();
 				}
 
+			}
+		});
+
+		add(new ConsoleMenuItem("File Observer") {
+			protected boolean checkPreconditions() {
+				return menus.getUserMenu().createRootDirectory();
+			}
+
+			protected void execute() {
+				menus.getFileObserverMenu().open();
 			}
 		});
 	}
@@ -99,7 +109,7 @@ public class FileMenu extends ConsoleMenu {
 
 	public void reset() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

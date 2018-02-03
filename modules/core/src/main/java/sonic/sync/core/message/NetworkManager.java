@@ -9,8 +9,6 @@ import com.frostwire.jlibtorrent.LibTorrent;
 import com.frostwire.jlibtorrent.SessionHandle;
 import com.frostwire.jlibtorrent.SessionManager;
 import com.frostwire.jlibtorrent.alerts.Alert;
-import com.frostwire.jlibtorrent.alerts.AlertType;
-
 import sonic.sync.core.configuration.FileConfiguration;
 import sonic.sync.core.configuration.NetworkConfiguration;
 import sonic.sync.core.exception.NoSessionException;
@@ -29,11 +27,12 @@ public class NetworkManager {
 	private ZContext conection;
 	private SessionManager sessionManager;
     private SessionHandle sessionHandle;
+    private Socket publishChannel;
 
 	public NetworkManager(IEncryption encryption, ISerialize serializer, FileConfiguration fileConfiguration) {
 		this.encryption = encryption;
 		this.serializer = serializer;
-		System.setProperty("jlibtorrent.jni.path", "C:\\Program Files\\Git\\sonic-sync\\modules\\client\\jlibtorrent.dll");
+		System.setProperty("jlibtorrent.jni.path", "/home/kalisb/sonic-sync/modules/client/libjlibtorrent.so");
         System.out.println("Using libtorrent version: " + LibTorrent.version());
 
 		this.sessionManager = new SessionManager();
@@ -61,9 +60,9 @@ public class NetworkManager {
 		nodeID = networkConfig.getNodeID();
 		String self = networkConfig.getNodeID();
 		//  Bind state backend to endpoint
-		Socket statebe = networkConfig.getContext().createSocket(ZMQ.PUB);
+		publishChannel = networkConfig.getContext().createSocket(ZMQ.PUB);
 		conection = networkConfig.getContext();
-		return statebe.bind(String.format("ipc://%s-state.ipc", self));
+		return publishChannel.bind(String.format("ipc://%s-state.ipc", self));
 	}
 
 	public NetworkConfiguration getConfiguration() {
@@ -110,5 +109,9 @@ public class NetworkManager {
     public SessionHandle getSessionHandler() {
         return sessionHandle;
     }
+
+	public void publish(String data) {
+		publishChannel.send(data);
+	}
 
 }

@@ -77,6 +77,7 @@ public class FileManager {
             public void execute() {
                 File torrentFile = context.getTorrent();
                 seedTorrent(torrentFile, context.consumeRoot());
+                networkManager.publish(context.getMagnetLink());
             }
 
             private void seedTorrent(File torrentFile, File consumeRoot) {
