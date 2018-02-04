@@ -1,8 +1,11 @@
 package sonic.sync.core.security;
 
+import java.io.IOException;
+
 import sonic.sync.core.configuration.ConsoleFileAgent;
 import sonic.sync.core.configuration.Parameters;
 import sonic.sync.core.exception.ProcessExecutionException;
+import sonic.sync.core.exception.SSException;
 import sonic.sync.core.file.RegisterProcessContext;
 import sonic.sync.core.message.NetworkManager;
 import sonic.sync.core.message.SyncProcess;
@@ -23,7 +26,7 @@ public class UserManager {
 		this.networkManager = networkManager;
 	}
 
-	public void executeLogin(UserCredentials credentials, ConsoleFileAgent fileAgent) {
+	public void executeLogin(UserCredentials credentials, ConsoleFileAgent fileAgent) throws SSException {
 		SessionParameters params = new SessionParameters(fileAgent);
 		LoginProcessContext context = new LoginProcessContext(credentials, params);
 
@@ -44,12 +47,7 @@ public class UserManager {
 
 	}
 
-	public boolean isRegistered(String userId) {
-		return networkManager.getDataManager().get(
-				new Parameters().setLocationKey(userId).setContentKey(Constants.USER_LOCATIONS)) != null;
-	}
-
-	public void executeRegisterProcess(UserCredentials credentials) throws ProcessExecutionException {
+	public void executeRegisterProcess(UserCredentials credentials) throws ProcessExecutionException, SSException {
 		DataManager dataManager = networkManager.getDataManager();
 		RegisterProcessContext context = new RegisterProcessContext(credentials);
 
@@ -58,10 +56,14 @@ public class UserManager {
 
 		process.add(new CheckIsUserRegisteredStep(context, dataManager));
 		process.add(new UserProfileCreationStep(context, networkManager.getEncryption()));
-		process.add(new PutUserProfileStep(context, dataManager));
+		process.add(new PutUserProfileStep(context, dataManager, networkManager));
 		//process.add(new AsyncComponent<>(new org.hive2hive.core.processes.register.PutLocationsStep(context, dataManager)));
 		//process.add(new AsyncComponent<>(new PutPublicKeyStep(context, dataManager)));
 		process.execute();
+	}
+
+	public boolean isRegistered(String userId) {
+		return true;
 	}
 
 }

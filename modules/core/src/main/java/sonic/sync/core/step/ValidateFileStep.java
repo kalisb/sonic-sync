@@ -12,7 +12,7 @@ public class ValidateFileStep implements IStep {
 
 	private final IUpdateContext context;
 
-	public ValidateFileStep(AddFileProcessContext context) {
+	public ValidateFileStep(IUpdateContext context) {
 		this.context = context;
 	}
 

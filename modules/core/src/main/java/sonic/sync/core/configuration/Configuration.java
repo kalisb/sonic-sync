@@ -1,8 +1,12 @@
 package sonic.sync.core.configuration;
 
+import java.util.List;
+
 public class Configuration {
 	private Serializer serializer;
 	private String address;
+	private List<String> peers;
+	private String nodeId;
 
 	public Configuration() {
 	}
@@ -54,6 +58,22 @@ public class Configuration {
 	public void setPath(String path, String value) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public String getNodeId() {
+		return nodeId;
+	}
+	
+	public void setNodeId(String nodeId) {
+		this.nodeId = nodeId;
+	}
+	
+	public List<String> getPeers() {
+		return peers;
+	}
+	
+	public void setPeers(List<String> peers) {
+		this.peers = peers;
 	}
 
 }

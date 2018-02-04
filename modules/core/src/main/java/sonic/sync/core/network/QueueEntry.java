@@ -26,13 +26,14 @@ public class QueueEntry {
 	 * @return the user profile
 	 */
 	public UserProfile getUserProfile() throws GetFailedException {
+		
 		if (getFailedException != null) {
 			// exception already here, don't even wait
 			throw getFailedException;
 		}
 
 		try {
-			boolean success = getWaiter.await(Constants.AWAIT_NETWORK_OPERATION_MS, TimeUnit.MILLISECONDS);
+			boolean success = getWaiter.await(Constants.AWAIT_NETWORK_OPERATION_MS, TimeUnit.MINUTES);
 			if (!success) {
 				throw new GetFailedException("Could not wait for getting the user profile");
 			}

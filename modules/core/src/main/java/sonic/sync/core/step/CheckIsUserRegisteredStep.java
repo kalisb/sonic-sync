@@ -1,5 +1,6 @@
 package sonic.sync.core.step;
 
+import java.io.IOException;
 import java.security.PublicKey;
 
 import sonic.sync.core.configuration.Parameters;
@@ -24,23 +25,22 @@ public class CheckIsUserRegisteredStep implements IStep {
 	public void execute() {
 		String userId = context.consumeUserId();
 		System.err.println("Checking if user is already registerd. user id ='" + userId + "'");
-		try {
+	/*	try {
 			if (get(context.consumeUserId(), Constants.USER_LOCATIONS) != null) {
 				System.err.println("The user '" + userId + "' is already registered and cannot be registered again.");
 			}
-		} catch (InvalidProcessStateException e) {
+		} catch (InvalidProcessStateException | ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	protected BaseNetworkContent get(PublicKey locationKey, String contentKey) throws InvalidProcessStateException {
 		return get(DefaultEncryption.key2String(locationKey), contentKey);
 	}
 
-	protected BaseNetworkContent get(String locationKey, String contentKey) throws InvalidProcessStateException {
-		Parameters parameters = new Parameters().setLocationKey(locationKey).setContentKey(contentKey);
-		return dataManager.get(parameters);
-}
+	protected BaseNetworkContent get(String locationKey, String contentKey) throws InvalidProcessStateException, ClassNotFoundException, IOException {
+		return dataManager.get(locationKey);
+	}
 
 }

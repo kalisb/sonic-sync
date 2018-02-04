@@ -2,6 +2,7 @@ package sonic.sync.core.configuration;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import org.zeromq.ZContext;
 
@@ -11,25 +12,21 @@ public class NetworkConfiguration {
 
 	private static final int AUTO_PORT = -1;
 
-	public NetworkConfiguration(String string, Object object) {
-		// TODO Auto-generated constructor stub
+	public NetworkConfiguration(String nodeID) {
+		this.nodeID = nodeID;
 	}
 
 	public static NetworkConfiguration createInitial(String nodeID) throws UnknownHostException {
 		ctx = new ZContext();
-		return new NetworkConfiguration(nodeID, null).setPort(AUTO_PORT).setBootstrap(InetAddress.getLocalHost());
+		return new NetworkConfiguration(nodeID).setPort(AUTO_PORT).setBootstrap(InetAddress.getLocalHost());
 	}
 
 	private String nodeID;
 	private int port;
 	private int bootstrapPort;
 	private InetAddress bootstrapAddress;
+	private List<String> peers;
 	private static ZContext ctx;
-
-	private NetworkConfiguration setNodeId(String nodeID) {
-		this.nodeID = nodeID;
-		return this;
-	}
 
 	public ZContext getContext() {
 		return ctx;
@@ -52,7 +49,7 @@ public class NetworkConfiguration {
 
 	public static NetworkConfiguration create(String nodeID, InetAddress bootstrapAddress) {
 		ctx = new ZContext();
-		return new NetworkConfiguration(nodeID, null).setBootstrap(bootstrapAddress);
+		return new NetworkConfiguration(nodeID).setBootstrap(bootstrapAddress);
 	}
 
 	public NetworkConfiguration setPort(int port) {
@@ -84,6 +81,14 @@ public class NetworkConfiguration {
 	public void destroy() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void setPeers(List<String> peers) {
+		this.peers = peers;
+	}
+
+	public List<String> getPeers() {
+		return peers;
 	}
 
 }

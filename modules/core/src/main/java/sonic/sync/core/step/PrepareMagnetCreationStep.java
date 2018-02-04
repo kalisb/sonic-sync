@@ -7,8 +7,11 @@ import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
 
+import com.frostwire.jlibtorrent.AddTorrentParams;
+import com.frostwire.jlibtorrent.ErrorCode;
 import com.frostwire.jlibtorrent.Pair;
 import com.frostwire.jlibtorrent.TorrentBuilder;
+import com.frostwire.jlibtorrent.TorrentFlags;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.Vectors;
 import com.frostwire.jlibtorrent.swig.entry;
@@ -59,6 +62,17 @@ public class PrepareMagnetCreationStep implements IStep {
 		String makeMagnetUri = torrentInfo.makeMagnetUri();
 		System.out.println("Set metalink to " + makeMagnetUri);
 		context.setMagnetLink(makeMagnetUri);
+		seedTorrent(torrentFile, context.consumeRoot());
+	}
+	
+	private void seedTorrent(File torrentFile, File consumeRoot) {
+		AddTorrentParams torrentParams = new AddTorrentParams();
+		TorrentInfo ti = new TorrentInfo(torrentFile);
+		torrentParams.torrentInfo(ti);
+		torrentParams.savePath(torrentFile.getParent());
+		torrentParams.flags(TorrentFlags.SEED_MODE);
+		networkManager.getSessionHandler().addTorrent(torrentParams, new ErrorCode()).swig();
+
 	}
 
 }

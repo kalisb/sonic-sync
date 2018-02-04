@@ -35,21 +35,21 @@ public class SessionCreationStep implements IStep {
 			params.setUserProfileManager(userProfileManager);
 
 			// load user profile
-			//UserProfile userProfile = userProfileManager.readUserProfile();
+			UserProfile userProfile = userProfileManager.readUserProfile();
 			// get the persistently cached items
 			PersistentMetaData metaData = FileUtil.readPersistentMetaData(params.getFileAgent(), networkManager
 					.getDataManager().getSerializer());
 
 			// create the key manager
-			//PublicKeyManager keyManager = new PublicKeyManager(userProfile.getUserId(), userProfile.getEncryptionKeys(),
-			//		userProfile.getProtectionKeys(), networkManager.getDataManager());
+			PublicKeyManager keyManager = new PublicKeyManager(userProfile.getUserId(), userProfile.getEncryptionKeys(),
+					userProfile.getProtectionKeys(), networkManager.getDataManager());
 
 			// read eventually cached keys and add them to the key manager
 			Map<String, PublicKey> publicKeyCache = metaData.getPublicKeyCache();
-			//for (String userId : publicKeyCache.keySet()) {
-			//	keyManager.putPublicKey(userId, publicKeyCache.get(userId));
-			//}
-			//params.setKeyManager(keyManager);
+			for (String userId : publicKeyCache.keySet()) {
+				keyManager.putPublicKey(userId, publicKeyCache.get(userId));
+			}
+			params.setKeyManager(keyManager);
 
 			// create the download manager
 			DownloadManager downloadManager = networkManager.getDownloadManager();

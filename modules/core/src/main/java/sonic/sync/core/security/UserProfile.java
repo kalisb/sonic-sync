@@ -21,6 +21,7 @@ public class UserProfile extends BaseNetworkContent {
 	private final String userId;
 	private final KeyPair encryptionKeys;
 	private final FolderIndex root;
+	private String tableKey;
 
 	public UserProfile(String userId, KeyPair encryptionKeys, KeyPair protectionKeys) {
 		assert userId != null;
@@ -98,5 +99,9 @@ public class UserProfile extends BaseNetworkContent {
 			}
 		}
 		return currentIndex;
+	}
+
+	public void setLocationKey(String key) {
+		this.tableKey = key;
 	}
 }

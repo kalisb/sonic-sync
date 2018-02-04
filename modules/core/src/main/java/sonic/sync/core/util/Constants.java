@@ -12,7 +12,7 @@ public interface Constants {
 	public static final String USER_LOCATIONS = "USER_LOCATIONS";
 	// maximum wait time until any network operation should be answered by the other peer (for each retry).
 	// This just serves as a fallback against infinite blocking when all other mechanisms fail.
-	public static final int AWAIT_NETWORK_OPERATION_MS = 60000;
+	public static final int AWAIT_NETWORK_OPERATION_MS = 2;
 	// maximum delay to wait until peers have time to answer until they get removed from the locations
 	public static final int CONTACT_PEERS_AWAIT_MS = 10000;
 	// Slow peers need to have more time since they may be dependent on buffered relaying

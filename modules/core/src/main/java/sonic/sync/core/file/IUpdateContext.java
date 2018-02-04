@@ -21,4 +21,8 @@ public interface IUpdateContext {
 
 	void provideChunkProtectionKeys(KeyPair chunkProtectionKeys);
 
+	String getMagnetLink();
+
+	void provideIndex(Index fileIndex);
+
 }

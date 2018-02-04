@@ -1,5 +1,5 @@
 package sonic.sync.core.exception;
 
-public class NoSessionException extends Exception {
+public class NoSessionException extends SSException {
 
 }

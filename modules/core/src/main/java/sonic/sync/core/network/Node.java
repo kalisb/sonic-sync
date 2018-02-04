@@ -14,6 +14,10 @@ public class Node {
 	private final NetworkManager networkManager;
 	private FileManager fileManager;
 	private UserManager userManager;
+	
+	public NetworkManager getNetworkManager() {
+		return networkManager;
+	}
 
 	private Node(FileConfiguration fileConfiguration, IEncryption encryption, ISerialize serializer) {
 		this.fileConfiguration = fileConfiguration;

@@ -1,8 +1,15 @@
 package sonic.sync.core.security;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.crypto.SecretKey;
+
+import com.frostwire.jlibtorrent.Entry;
+import com.frostwire.jlibtorrent.Sha1Hash;
 
 import sonic.sync.core.configuration.Parameters;
 import sonic.sync.core.exception.PutFailedException;
@@ -17,6 +24,7 @@ public class AESEncryptedVersionManager<T extends BaseNetworkContent> {
 	private String locationKey;
 	private String contentKey;
 	private Cache<EncryptedNetworkContent> encryptedContentCache = new Cache<EncryptedNetworkContent>();
+	private static List<String> keys = new ArrayList<>();
 
 	public AESEncryptedVersionManager(DataManager dataManager, SecretKey encryptionKey, String locationKey, String contentKey) {
 		this(dataManager, dataManager.getEncryption(), encryptionKey, locationKey, contentKey);
@@ -31,43 +39,27 @@ public class AESEncryptedVersionManager<T extends BaseNetworkContent> {
 		this.encryptionKey = encryptionKey;
 	}
 
-	public UserProfile get() {
-		// TODO Auto-generated method stub
+	public BaseNetworkContent get() throws ClassNotFoundException, IOException {
+		System.out.println(keys);
+		if (keys.size() > 0) {
+			String code = keys.get(keys.size() - 1);
+			BaseNetworkContent entry = dataManager.get(code);
+			return entry;
+		}
 		return null;
 	}
 
 	public void put(T networkContent, KeyPair protectionKeys) throws PutFailedException {
-		//try {
-			EncryptedNetworkContent encrypted = encryption.encryptAES(networkContent, encryptionKey);
+		EncryptedNetworkContent encrypted = encryption.encryptAES(networkContent, encryptionKey);
 		/*	encrypted.setBasedOnKey(networkContent.getBasedOnKey());
-			encrypted.setVersionKey(networkContent.getVersionKey());
-			encrypted.generateVersionKey();
+		encrypted.setVersionKey(networkContent.getVersionKey());
+		encrypted.generateVersionKey();*/
 
-			Parameters parameters = new Parameters().setLocationKey(this.parameters.getLocationKey())
-					.setContentKey(this.parameters.getContentKey()).setVersionKey(encrypted.getVersionKey())
-					.setBasedOnKey(encrypted.getBasedOnKey()).setNetworkContent(encrypted).setProtectionKeys(protectionKeys)
-					.setTTL(networkContent.getTimeToLive()).setPrepareFlag(true);
+		Parameters parameters = new Parameters().setLocationKey(locationKey)
+				.setContentKey(contentKey).setNetworkContent(encrypted);
 
-			PutStatus status = dataManager.put(parameters);
-			if (status.equals(PutStatus.FAILED)) {
-				throw new PutFailedException("Put failed.");
-			} else if (status.equals(PutStatus.VERSION_FORK)) {
-				if (!dataManager.remove(parameters)) {
-				}
-				throw new VersionForkAfterPutException();
-			} else {
-				networkContent.setVersionKey(encrypted.getVersionKey());
-				networkContent.setBasedOnKey(encrypted.getBasedOnKey());
-				// cache digest
-				digestCache.put(parameters.getVersionKey(), new HashSet<Number160>(parameters.getData().basedOnSet()));
-				// cache network content
-				contentCache.put(parameters.getVersionKey(), networkContent);
-				// cache encrypted network content
-				encryptedContentCache.put(parameters.getVersionKey(), encrypted);
-			}
-		} catch (GeneralSecurityException | IOException e) {
-			throw new PutFailedException(String.format("Cannot encrypt the user profile. reason = '%s'", e.getMessage()));
-		}*/
+		Sha1Hash code = dataManager.put(parameters);
+		keys.add(code.toString());
 	}
 
 }

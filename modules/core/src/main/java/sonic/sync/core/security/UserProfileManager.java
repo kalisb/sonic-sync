@@ -1,5 +1,6 @@
 package sonic.sync.core.security;
 
+import java.io.IOException;
 import java.security.KeyPair;
 import java.util.Queue;
 import java.util.Random;
@@ -75,6 +76,10 @@ public class UserProfileManager {
 		}
 	}
 
+	public AESEncryptedVersionManager<UserProfile> getVersionManager() {
+		return versionManager;
+	}
+	
 	public UserCredentials getUserCredentials() {
 		return credentials;
 	}
@@ -110,7 +115,7 @@ public class UserProfileManager {
 	 * @throws AbortModifyException if the modification was aborted
 	 */
 	public void modifyUserProfile(String pid, IUserProfileModification modifier) throws GetFailedException,
-			PutFailedException, AbortModifyException {
+			PutFailedException {
 		PutQueueEntry entry = new PutQueueEntry(pid);
 		modifyQueue.add(entry);
 
@@ -177,7 +182,13 @@ public class UserProfileManager {
 				} else if (modifyQueue.isEmpty()) {
 					System.err.println(readOnlyQueue.size() + " process(es) are waiting for read-only access.");
 					System.err.println("Loading latest version of user profile.");
-					UserProfile userProfile = versionManager.get();
+					UserProfile userProfile = null;
+					try {
+						userProfile = (UserProfile) versionManager.get();
+					} catch (ClassNotFoundException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
 					System.err.println("Notifying " + readOnlyQueue.size() + " processes that newest profile is ready.");
 					while (!readOnlyQueue.isEmpty()) {
@@ -190,9 +201,14 @@ public class UserProfileManager {
 
 					System.err.println("Process " + modifying.getPid() + " is waiting to make profile modifications.");
 
-					UserProfile userProfile;
+					UserProfile userProfile = null;
 					System.err.println("Loading latest version of user profile for process " + modifying.getPid() + " to modify.");
-					userProfile = versionManager.get();
+					try {
+						userProfile = (UserProfile) versionManager.get();
+					} catch (ClassNotFoundException | IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					modifying.setUserProfile(userProfile);
 
 					int counter = 0;

@@ -1,30 +1,40 @@
 package sonic.sync.core.message;
 
 import java.io.File;
+import java.util.List;
+
 import org.apache.commons.io.monitor.FileAlterationListener;
 
-import com.frostwire.jlibtorrent.AddTorrentParams;
-import com.frostwire.jlibtorrent.ErrorCode;
-import com.frostwire.jlibtorrent.TorrentFlags;
-import com.frostwire.jlibtorrent.TorrentInfo;
 import sonic.sync.core.configuration.FileConfiguration;
+import sonic.sync.core.exception.GetFailedException;
 import sonic.sync.core.exception.NoPeerConnectionException;
 import sonic.sync.core.exception.NoSessionException;
+import sonic.sync.core.exception.SSException;
 import sonic.sync.core.file.AddFileProcessContext;
+import sonic.sync.core.file.DeleteFileProcessContext;
 import sonic.sync.core.file.FileAgent;
 import sonic.sync.core.file.FileNode;
+import sonic.sync.core.file.IUpdateContext;
+import sonic.sync.core.file.UpdateFileProcessContext;
 import sonic.sync.core.security.DataManager;
 import sonic.sync.core.security.UserPermission;
 import sonic.sync.core.security.UserPermission.PermissionType;
 import sonic.sync.core.step.AddIndexToUserProfileStep;
 import sonic.sync.core.step.CheckWriteAccessStep;
+import sonic.sync.core.step.DeleteFromUserProfileStep;
+import sonic.sync.core.step.DownloadMagneetLinkStep;
 import sonic.sync.core.step.IStep;
 import sonic.sync.core.step.PrepareMagnetCreationStep;
 import sonic.sync.core.step.ValidateFileStep;
 import sonic.sync.core.util.FileUtil;
 
 public class FileManager {
-	
+	enum Operations {
+		ADD,
+		DELETE,
+		UPDATE, DOWNLOAD
+	}
+
 	private final FileConfiguration fileConfiguration;
 	private final NetworkManager networkManager;
 
@@ -34,7 +44,7 @@ public class FileManager {
 	}
 
 	public void createAddProcess(File file) throws NoPeerConnectionException, NoSessionException,
-			IllegalArgumentException {
+	IllegalArgumentException, SSException {
 
 		Session session = networkManager.getSession();
 		if (file == null) {
@@ -50,7 +60,7 @@ public class FileManager {
 		createAddFileProcess(file, networkManager, fileConfiguration);
 	}
 
-	private void createAddFileProcess(File file, NetworkManager networkManager, FileConfiguration fileConfiguration) throws NoSessionException {
+	private void createAddFileProcess(File file, NetworkManager networkManager, FileConfiguration fileConfiguration) throws NoSessionException, SSException {
 		if (file == null) {
 			throw new IllegalArgumentException("File can't be null.");
 		}
@@ -66,34 +76,25 @@ public class FileManager {
 		process.add(new CheckWriteAccessStep(context, session.getProfileManager()));
 		process.add(new AddIndexToUserProfileStep(context, session.getProfileManager()));
 		process.add(new PrepareMagnetCreationStep(context, networkManager));
-		process.add(createNotificationProcess(context));
+		process.add(createNotificationProcess(context, Operations.ADD));
 		process.execute();
 	}
 
-	private IStep createNotificationProcess(final AddFileProcessContext context) {
-	   return new IStep() {
-            
-            @Override
-            public void execute() {
-                File torrentFile = context.getTorrent();
-                seedTorrent(torrentFile, context.consumeRoot());
-                networkManager.publish(context.getMagnetLink());
-            }
+	private IStep createNotificationProcess(final IUpdateContext context, final Operations operation) {
+		return new IStep() {
 
-            private void seedTorrent(File torrentFile, File consumeRoot) {
-                AddTorrentParams torrentParams = new AddTorrentParams();
-                TorrentInfo ti = new TorrentInfo(torrentFile);
-                torrentParams.torrentInfo(ti);
-                torrentParams.savePath(torrentFile.getParent());
-                torrentParams.flags(TorrentFlags.SEED_MODE);
-                networkManager.getSessionHandler().addTorrent(torrentParams, new ErrorCode()).swig();
-                
-            }
-        };
+			@Override
+			public void execute() {
+				networkManager.publish(networkManager.getConfiguration().getNodeID());
+				networkManager.publish(operation.name());
+				networkManager.publish(context.consumeFile().getName());
+				networkManager.publish(context.getMagnetLink());
+			}
+		};
 	}
 
 	public void createDeleteProcess(File file) throws NoPeerConnectionException, NoSessionException,
-			IllegalArgumentException {
+	IllegalArgumentException, GetFailedException, SSException {
 
 		if (file == null) {
 			throw new IllegalArgumentException("File cannot be null");
@@ -106,13 +107,22 @@ public class FileManager {
 		createDeleteFileProcess(file, networkManager);
 	}
 
-	private void createDeleteFileProcess(File file, NetworkManager networkManager2) {
-		// TODO Auto-generated method stub
-		
+	private void createDeleteFileProcess(File file, NetworkManager networkManager) throws NoSessionException, GetFailedException, SSException {
+		Session session = networkManager.getSession();
+
+		DeleteFileProcessContext context = new DeleteFileProcessContext(file, session, networkManager.getEncryption());
+
+		// process composition
+		SyncProcess process = new SyncProcess();
+
+		process.add(new DeleteFromUserProfileStep(context, networkManager));
+		process.add(createNotificationProcess(context, Operations.DELETE));
+
+		process.execute();
 	}
 
 	public void createUpdateProcess(File file) throws NoPeerConnectionException, NoSessionException,
-			IllegalArgumentException {
+	IllegalArgumentException, SSException {
 
 		if (file == null) {
 			throw new IllegalArgumentException("File cannot be null");
@@ -127,31 +137,49 @@ public class FileManager {
 		createUpdateFileProcess(file, networkManager, fileConfiguration);
 	}
 
-	private void createUpdateFileProcess(File file, NetworkManager networkManager2,
-			FileConfiguration fileConfiguration2) {
-		// TODO Auto-generated method stub
-		
+	private void createUpdateFileProcess(File file, NetworkManager networkManager,
+			FileConfiguration fileConfiguration) throws NoSessionException, SSException {
+		DataManager dataManager = networkManager.getDataManager();
+		Session session = networkManager.getSession();
+		AddFileProcessContext context = new AddFileProcessContext(file, session, fileConfiguration,
+				networkManager.getEncryption());
+
+		// process composition
+		SyncProcess process = new SyncProcess();
+
+		process.add(new ValidateFileStep(context));
+		process.add(new CheckWriteAccessStep(context, session.getProfileManager()));
+		/*process.add(new CreateNewVersionStep(context));
+		process.add(new UpdateHashInUserProfileStep(context, session.getProfileManager()));*/
+		process.add(new PrepareMagnetCreationStep(context, networkManager));
+		process.add(createNotificationProcess(context, Operations.UPDATE));
+
+		process.execute();
 	}
 
-	public void createDownloadProcess(File file) throws NoPeerConnectionException, NoSessionException,
-			IllegalArgumentException {
-
-		if (file == null) {
-			throw new IllegalArgumentException("File cannot be null");
-		} else if (!FileUtil.isInSharedDirectory(networkManager.getSession().getFileAgent(), file)) {
-			throw new IllegalArgumentException("File is not in the Hive2Hive directory");
-		}
-
-		createDownloadFileProcess(file, networkManager);
+	public void createDownloadProcess(File file, String magnetLink) throws NoPeerConnectionException, NoSessionException,
+	IllegalArgumentException, SSException {
+		createDownloadFileProcess(file, magnetLink, networkManager);
 	}
 
-	private void createDownloadFileProcess(File file, NetworkManager networkManager2) {
-		// TODO Auto-generated method stub
-		
+	private void createDownloadFileProcess(File file, String magnetLink, NetworkManager networkManager) throws NoSessionException, SSException {
+		Session session = networkManager.getSession();
+
+		AddFileProcessContext context = new AddFileProcessContext(file, session, fileConfiguration, networkManager.getEncryption());
+
+		// process composition
+		SyncProcess process = new SyncProcess();
+		context.setMagnetLink(magnetLink);
+
+		process.add(new DownloadMagneetLinkStep(context, networkManager));
+		process.add(createNotificationProcess(context, Operations.DOWNLOAD));
+
+		process.execute();
+
 	}
 
 	public void createMoveProcess(File source, File destination) throws NoSessionException,
-			NoPeerConnectionException, IllegalArgumentException {
+	NoPeerConnectionException, IllegalArgumentException {
 
 		FileAgent fileAgent = networkManager.getSession().getFileAgent();
 
@@ -170,7 +198,7 @@ public class FileManager {
 
 	private void createMoveFileProcess(File source, File destination, NetworkManager networkManager2) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void createShareProcess(File folder, String userId, PermissionType permission)
@@ -188,12 +216,12 @@ public class FileManager {
 
 		// folder must be in the given root directory
 		if (!FileUtil.isInSharedDirectory(session.getFileAgent(), folder)) {
-			throw new IllegalArgumentException("Folder must be in root of the H2H directory.");
+			throw new IllegalArgumentException("Folder must be in root of the SS directory.");
 		}
 
 		// sharing root folder is not allowed
 		if (folder.equals(session.getRootFile())) {
-			throw new IllegalArgumentException("Root folder of the H2H directory can't be shared.");
+			throw new IllegalArgumentException("Root folder of the SS directory can't be shared.");
 		}
 
 		createShareProcess(folder, new UserPermission(userId, permission), networkManager);
@@ -201,7 +229,7 @@ public class FileManager {
 
 	private void createShareProcess(File folder, UserPermission userPermission, NetworkManager networkManager2) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public FileNode createFileListProcess() throws NoPeerConnectionException, NoSessionException {
@@ -213,17 +241,13 @@ public class FileManager {
 		return null;
 	}
 
-	public void subscribeFileEvents(FileAlterationListener listener) {
+	public void subscribeFileEvents(FileAlterationListener listener, List<String> peers) {
 		if (listener == null) {
 			throw new IllegalArgumentException("The argument listener must not be null.");
 		}
-		/*
-		if (networkManager.getEventBus() == null) {
-			throw new IllegalStateException("No EventBus instance provided.");
-		}
-		networkManager.getEventBus().subscribe(listener);
-		*/
-}
+
+		networkManager.subscribe(peers);
+	}
 
 
 }

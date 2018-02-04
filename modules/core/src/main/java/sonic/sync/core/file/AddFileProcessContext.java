@@ -18,6 +18,7 @@ public class AddFileProcessContext implements IUpdateContext {
 	private boolean largeFile;
 	private KeyPair chunkProtectionKeys;
 	private KeyPair metaFileProtectionKeys;
+	private Object index;
 
 	public AddFileProcessContext(File file, Session session, FileConfiguration fileConfiguration,
 			IEncryption encryption) {
@@ -28,7 +29,7 @@ public class AddFileProcessContext implements IUpdateContext {
 	}
 
 	public String getMagnetLink() {
-		return magnetLink;
+		return magnetLink == null ? "" : magnetLink;
 	}
 	
 	public void setMagnetLink(String magnetLink) {
@@ -76,6 +77,11 @@ public class AddFileProcessContext implements IUpdateContext {
 	@Override
 	public void provideMetaFileProtectionKeys(KeyPair metaFileProtectionKeys) {
 		this.metaFileProtectionKeys = metaFileProtectionKeys;
+	}
+
+	@Override
+	public void provideIndex(Index fileIndex) {
+		this.index = index;
 	}
 
 }

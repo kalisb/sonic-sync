@@ -3,6 +3,7 @@ package sonic.sync.core.message;
 import java.util.ArrayList;
 import java.util.List;
 
+import sonic.sync.core.exception.SSException;
 import sonic.sync.core.step.IStep;
 
 public class SyncProcess {
@@ -16,7 +17,7 @@ public class SyncProcess {
 		components.add(step);	
 	}
 
-	public void execute() {
+	public void execute() throws SSException {
 		executionIndex = 0;
 		while (executionIndex < components.size()) {
 			next = components.get(executionIndex);
