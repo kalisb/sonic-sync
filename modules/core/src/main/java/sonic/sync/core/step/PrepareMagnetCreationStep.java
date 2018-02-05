@@ -69,7 +69,7 @@ public class PrepareMagnetCreationStep implements IStep {
 		AddTorrentParams torrentParams = new AddTorrentParams();
 		TorrentInfo ti = new TorrentInfo(torrentFile);
 		torrentParams.torrentInfo(ti);
-		torrentParams.savePath(torrentFile.getParent());
+		torrentParams.savePath(consumeRoot.getAbsolutePath());
 		torrentParams.flags(TorrentFlags.SEED_MODE);
 		networkManager.getSessionHandler().addTorrent(torrentParams, new ErrorCode()).swig();
 

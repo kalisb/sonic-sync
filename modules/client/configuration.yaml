@@ -1,3 +1,6 @@
-address: 127.0.0.1
+address: 172.28.128.1
 serializer:
   mode: java  
+nodeId: user-1
+peers:
+  - 172.28.128.3

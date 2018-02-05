@@ -1,11 +1,20 @@
 package sonic.sync.core.security;
 
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.ShortBufferException;
 
 import sonic.sync.core.network.BaseNetworkContent;
 import sonic.sync.core.network.EncryptedNetworkContent;
@@ -42,14 +51,41 @@ public class DefaultEncryption implements IEncryption {
 
 	@Override
 	public EncryptedNetworkContent encryptAES(BaseNetworkContent content, SecretKey aesKey) {
-		// TODO Auto-generated method stub
-		return null;
+		byte[] serialized = null;
+		try {
+			serialized = serializer.serialize(content);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		byte[] initVector = EncryptionUtil.generateIV();
+		byte[] encryptedContent = null;
+		try {
+			encryptedContent = EncryptionUtil.encryptAES(serialized, aesKey, initVector, securityProvider, strongAES);
+		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException
+				| InvalidAlgorithmParameterException | ShortBufferException | IllegalBlockSizeException
+				| BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		EncryptedNetworkContent encryptedNetworkContent = new EncryptedNetworkContent(encryptedContent, initVector);
+		return encryptedNetworkContent;
 	}
 
 	@Override
-	public BaseNetworkContent decryptAES(EncryptedNetworkContent content, SecretKey aesKey) {
-		// TODO Auto-generated method stub
-		return null;
+	public BaseNetworkContent decryptAES(EncryptedNetworkContent content, SecretKey aesKey) throws ClassNotFoundException, IOException {
+		byte[] decrypted = null;
+		try {
+			decrypted = EncryptionUtil.decryptAES(content.getCipherContent(), aesKey, content.getInitVector(),
+					securityProvider, strongAES);
+		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException
+				| InvalidAlgorithmParameterException | ShortBufferException | IllegalBlockSizeException
+				| BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return (BaseNetworkContent) serializer.deserialize(decrypted);
 	}
 
 	@Override

@@ -27,35 +27,25 @@ public class PutUserProfileStep implements IStep {
 	}
 
 	@Override
-	public void execute() throws NoSessionException {
+	public void execute() {
 		try {
 			System.err.println("Start encrypting the user profile of the new user " + context.consumeUserId());
 			EncryptedNetworkContent encrypted = dataManager.getEncryption().encryptAES(context.consumeUserProfile(),
 					context.consumeUserProfileEncryptionKeys());
 			System.err.println("User profile successfully encrypted. Start putting it...");
-			networkManager.getSession().getProfileManager().getVersionManager().put(context.consumeUserProfile(), context.consumeUserProfileProtectionKeys());
+			put(context.consumeUserProflieLocationKey(), Constants.USER_PROFILE, encrypted,
+					context.consumeUserProfileProtectionKeys());
 			return;
 		} catch (IllegalStateException ex) {
 			System.err.println("Cannot encrypt the user profile of the new user " + context.consumeUserId());
 			System.err.println("Cannot encrypt the user profile.");
 			return;
-		} catch (PutFailedException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-			return;
 		}
 	}
 
-	protected void put(String locationKey, String contentKey, BaseNetworkContent content, KeyPair protectionKeys)
-			throws PutFailedException {
-		Parameters params = new Parameters().setLocationKey(locationKey).setContentKey(contentKey)
-				.setNetworkContent(content).setProtectionKeys(protectionKeys);
-		put(params);
-	}
-	protected Sha1Hash put(Parameters parameters) throws PutFailedException {
-		// store for roll back
-		this.parameters = parameters;
-		return dataManager.put(parameters);
+	private void put(String consumeUserProflieLocationKey, String userProfile, EncryptedNetworkContent encrypted,
+			KeyPair consumeUserProfileProtectionKeys) {
+		dataManager.put(new Parameters().setLocationKey(consumeUserProflieLocationKey).setContentKey(userProfile).setNetworkContent(encrypted));	
 	}
 
 }

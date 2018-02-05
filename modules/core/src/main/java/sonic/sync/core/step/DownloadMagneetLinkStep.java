@@ -2,12 +2,15 @@ package sonic.sync.core.step;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
 import com.frostwire.jlibtorrent.AddTorrentParams;
 import com.frostwire.jlibtorrent.ErrorCode;
 import com.frostwire.jlibtorrent.SessionHandle;
+import com.frostwire.jlibtorrent.TcpEndpoint;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.swig.torrent_status;
@@ -15,6 +18,7 @@ import com.frostwire.jlibtorrent.swig.torrent_status;
 import sonic.sync.core.exception.NoSessionException;
 import sonic.sync.core.file.AddFileProcessContext;
 import sonic.sync.core.message.NetworkManager;
+import zmq.io.net.tcp.TcpAddress;
 
 public class DownloadMagneetLinkStep implements IStep {
 
@@ -42,6 +46,11 @@ public class DownloadMagneetLinkStep implements IStep {
 			AddTorrentParams params = new AddTorrentParams();
 			params.savePath(savePath.getAbsolutePath());
 			params.torrentInfo(new TorrentInfo(f));
+			List<TcpEndpoint> address = new ArrayList<>();
+			for (String peer : networkManager.getConfiguration().getPeers()) {
+				address.add(new TcpEndpoint(peer, 6881));
+			}
+			params.peers(address);
 			SessionHandle handleSession = networkManager.getSessionHandler();
 			TorrentHandle handle = handleSession.addTorrent(params, new ErrorCode());
 			torrent_status status = handle.swig().status();

@@ -41,15 +41,15 @@ public class SessionCreationStep implements IStep {
 					.getDataManager().getSerializer());
 
 			// create the key manager
-			PublicKeyManager keyManager = new PublicKeyManager(userProfile.getUserId(), userProfile.getEncryptionKeys(),
-					userProfile.getProtectionKeys(), networkManager.getDataManager());
+			//PublicKeyManager keyManager = new PublicKeyManager(userProfile.getUserId(), userProfile.getEncryptionKeys(),
+			//		userProfile.getProtectionKeys(), networkManager.getDataManager());
 
 			// read eventually cached keys and add them to the key manager
-			Map<String, PublicKey> publicKeyCache = metaData.getPublicKeyCache();
-			for (String userId : publicKeyCache.keySet()) {
-				keyManager.putPublicKey(userId, publicKeyCache.get(userId));
-			}
-			params.setKeyManager(keyManager);
+			//Map<String, PublicKey> publicKeyCache = metaData.getPublicKeyCache();
+			//for (String userId : publicKeyCache.keySet()) {
+			//	keyManager.putPublicKey(userId, publicKeyCache.get(userId));
+			//}
+			//params.setKeyManager(keyManager);
 
 			// create the download manager
 			DownloadManager downloadManager = networkManager.getDownloadManager();

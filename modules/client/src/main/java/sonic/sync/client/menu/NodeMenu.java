@@ -35,14 +35,15 @@ public class NodeMenu extends ConsoleMenu {
 		createNetworkMenuItem = new ConsoleMenuItem("Create New Network") {
 			protected void execute() throws UnknownHostException {
 				buildNode();
-				connectNode(NetworkConfiguration.createInitial(askNodeID()));
+				String nodeId = config.getNodeId();
+				connectNode(NetworkConfiguration.createInitial(nodeId));
 			}
 		};
 
 
 		connectToExistingNetworkItem = new ConsoleMenuItem("Connect to Existing Network") {
 			protected void execute() throws UnknownHostException {
-				String nodeID = askNodeID();
+				String nodeID = config.getNodeId();
 
 				print("Specify Bootstrap Address:");
 				InetAddress bootstrapAddress = InetAddress.getByName(awaitStringParameter());
@@ -67,12 +68,19 @@ public class NodeMenu extends ConsoleMenu {
 		if (!"auto".equalsIgnoreCase(bindPort)) {
 			networkConfig.setPort(Integer.parseInt(bindPort));
 		}
+		try {
+			networkConfig.setBootstrap(InetAddress.getByName(config.getAddress()));
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		networkConfig.setPeers(config.getPeers());
 
 		if (node.connect(networkConfig)) {
 
 			print("Network connection successfully established.");
 			// connect the event bus
-			node.getFileManager().subscribeFileEvents(new FileEventListener(node.getFileManager()));
+			node.getFileManager().subscribeFileEvents(new FileEventListener(node.getFileManager()), config.getPeers());
 
 			String address = config.getAddress();
 			if (!"auto".equalsIgnoreCase(address)) {

@@ -57,13 +57,14 @@ public class UserManager {
 		process.add(new CheckIsUserRegisteredStep(context, dataManager));
 		process.add(new UserProfileCreationStep(context, networkManager.getEncryption()));
 		process.add(new PutUserProfileStep(context, dataManager, networkManager));
-		//process.add(new AsyncComponent<>(new org.hive2hive.core.processes.register.PutLocationsStep(context, dataManager)));
+		//process.add(new AsyncComponent<>(new PutLocationsStep(context, dataManager)));
 		//process.add(new AsyncComponent<>(new PutPublicKeyStep(context, dataManager)));
 		process.execute();
 	}
 
-	public boolean isRegistered(String userId) {
-		return true;
+	public boolean isRegistered(String userId) throws ClassNotFoundException, IOException {
+		return networkManager.getDataManager().get(
+				new Parameters().setLocationKey(userId).setContentKey(Constants.USER_LOCATIONS)) != null;
 	}
 
 }

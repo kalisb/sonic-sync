@@ -6,6 +6,9 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import com.frostwire.jlibtorrent.Entry;
 
 import sonic.sync.core.file.FolderIndex;
 import sonic.sync.core.file.Index;

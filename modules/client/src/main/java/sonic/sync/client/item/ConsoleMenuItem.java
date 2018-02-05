@@ -51,9 +51,8 @@ public abstract class ConsoleMenuItem {
 		return true;
 	}
 
-	public static void printPrecondition(String string) {
-		// TODO Auto-generated method stub
-		
+	public static void printPrecondition(String message) {
+		System.out.println(message);
 	}
 	
 	protected abstract void execute() throws Exception;

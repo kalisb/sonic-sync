@@ -8,12 +8,15 @@ import java.security.spec.KeySpec;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import sonic.sync.core.security.EncryptionUtil.AES_KEYLENGTH;
 
 public class PasswordUtil {
 
 	public static final int HASH_BIT_SIZE = 192;
 	public static final int SALT_BIT_SIZE = HASH_BIT_SIZE;
-	
+
 	private static final int PBKDF2_ITERATIONS = 65536;
 
 	public static byte[] generateFixedSalt(byte[] input) {
@@ -67,8 +70,16 @@ public class PasswordUtil {
 		return null;
 	}
 
-	public static SecretKey generateAESKeyFromPassword(String password, String pin, String keylengthUserProfile) {
-		// TODO Auto-generated method stub
-		return null;
+	public static SecretKey generateAESKeyFromPassword(String password, String pin, AES_KEYLENGTH keyLength) {
+		// generate a fixed salt out of the PIN itself
+		byte[] pinEnlargementSalt = generateFixedSalt(pin.getBytes());
+
+		// enlarge PIN with enlargement salt, such that PIN has same size as the hash
+		byte[] enlargedPin = getPBKDF2Hash(pin.toCharArray(), pinEnlargementSalt, SALT_BIT_SIZE);
+
+		// use the enlarged PIN as salt to generate the symmetric AES key
+		byte[] secretKeyEncoded = getPBKDF2Hash(password.toCharArray(), enlargedPin, keyLength.value());
+
+		return new SecretKeySpec(secretKeyEncoded, "AES");
 	}
 }

@@ -1,10 +1,16 @@
 package sonic.sync.client.menu;
 
+import java.io.IOException;
+
 import sonic.sync.client.item.ConsoleMenuItem;
 import sonic.sync.core.configuration.ConsoleFileAgent;
 import sonic.sync.core.exception.InvalidProcessStateException;
 import sonic.sync.core.exception.NoPeerConnectionException;
 import sonic.sync.core.exception.ProcessExecutionException;
+import sonic.sync.core.exception.SSException;
+import sonic.sync.core.file.FileAgent;
+import sonic.sync.core.message.Session;
+import sonic.sync.core.security.SessionParameters;
 import sonic.sync.core.security.UserCredentials;
 import sonic.sync.core.security.UserManager;
 
@@ -24,7 +30,7 @@ public class StartMenu extends ConsoleMenu {
 
 		add(new ConsoleMenuItem("Login") {
 			protected boolean checkPreconditions() throws NoPeerConnectionException, InvalidProcessStateException,
-			InterruptedException {
+			InterruptedException, ClassNotFoundException, IOException {
 				if (!menus.getNodeMenu().createNetwork()) {
 					printAbortion(displayText, "Node not connected.");
 					return false;
@@ -44,7 +50,7 @@ public class StartMenu extends ConsoleMenu {
 				return true;
 			}
 
-			protected void execute() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+			protected void execute() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, SSException {
 				ConsoleFileAgent fileAgent = new ConsoleFileAgent(menus.getUserMenu().getRootDirectory());
 				menus.getNodeMenu().getNode().getUserManager()
 				.executeLogin(menus.getUserMenu().getUserCredentials(), fileAgent);
@@ -65,6 +71,18 @@ public class StartMenu extends ConsoleMenu {
 		add(new ConsoleMenuItem("File Menu") {
 			@Override
 			protected boolean checkPreconditions() throws Exception {
+				/*if (!menus.getNodeMenu().createNetwork()) {
+					printAbortion(displayText, "Node not connected.");
+					return false;
+				}
+				if (!menus.getUserMenu().createRootDirectory()) {
+					printAbortion(displayText, "Root directory not specified.");
+					return false;
+				}
+				ConsoleFileAgent fileAgent = new ConsoleFileAgent(menus.getUserMenu().getRootDirectory());
+				SessionParameters params = new SessionParameters(fileAgent);
+				menus.getNodeMenu().getNode().getNetworkManager().setSession(new Session(params ));
+				return true;*/
 				return checkLogin();
 			}
 
@@ -83,7 +101,7 @@ public class StartMenu extends ConsoleMenu {
 		return "Please select an option:";
 	}
 
-	private boolean register() {
+	private boolean register() throws ClassNotFoundException, IOException {
 		UserManager userManager = menus.getNodeMenu().getNode().getUserManager();
 		UserCredentials userCredentials = menus.getUserMenu().getUserCredentials();
 
@@ -95,7 +113,7 @@ public class StartMenu extends ConsoleMenu {
 			try {
 				userManager.executeRegisterProcess(userCredentials);
 				return true;
-			} catch (ProcessExecutionException e) {
+			} catch (ProcessExecutionException | SSException e) {
 				return false;
 			}
 		}

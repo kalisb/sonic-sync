@@ -2,6 +2,7 @@ package sonic.sync.core.util;
 
 import java.math.BigInteger;
 
+import sonic.sync.core.security.EncryptionUtil.AES_KEYLENGTH;
 import sonic.sync.core.security.EncryptionUtil.RSA_KEYLENGTH;
 
 public interface Constants {
@@ -17,9 +18,9 @@ public interface Constants {
 	public static final int CONTACT_PEERS_AWAIT_MS = 10000;
 	// Slow peers need to have more time since they may be dependent on buffered relaying
 	public static final int CONTACT_SLOW_PEERS_AWAIT_MS = 30000;
-	static final String KEYLENGTH_USER_PROFILE = null;
+	static final AES_KEYLENGTH KEYLENGTH_USER_PROFILE = AES_KEYLENGTH.BIT_256;
 	static final int PUT_RETRIES = 2;
-	static final String USER_PROFILE = null;
+	static final String USER_PROFILE = "USER_PROFILE";
 	static final String KEYLENGTH_META_DOCUMENT = null;
 	static final String META_DOCUMENT = null;
 	static final String LARGE_FILE_UPDATE = null;

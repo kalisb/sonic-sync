@@ -45,7 +45,7 @@ public class NetworkManager {
 	public NetworkManager(IEncryption encryption, ISerialize serializer, FileConfiguration fileConfiguration) {
 		this.encryption = encryption;
 		this.serializer = serializer;
-		//System.setProperty("jlibtorrent.jni.path", "/home/kalisb/sonic-sync/modules/client/libjlibtorrent.so");
+		System.setProperty("jlibtorrent.jni.path", "/home/kalisb/sonic-sync/modules/client/libjlibtorrent.so");
         System.out.println("Using libtorrent version: " + LibTorrent.version());
 
 		this.sessionManager = new SessionManager();

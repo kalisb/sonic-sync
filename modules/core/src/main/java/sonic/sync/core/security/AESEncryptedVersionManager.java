@@ -40,13 +40,8 @@ public class AESEncryptedVersionManager<T extends BaseNetworkContent> {
 	}
 
 	public BaseNetworkContent get() throws ClassNotFoundException, IOException {
-		System.out.println(keys);
-		if (keys.size() > 0) {
-			String code = keys.get(keys.size() - 1);
-			BaseNetworkContent entry = dataManager.get(code);
-			return entry;
-		}
-		return null;
+		BaseNetworkContent entry = dataManager.get(new Parameters().setContentKey(contentKey).setLocationKey(locationKey));
+		return entry;
 	}
 
 	public void put(T networkContent, KeyPair protectionKeys) throws PutFailedException {
@@ -59,6 +54,7 @@ public class AESEncryptedVersionManager<T extends BaseNetworkContent> {
 				.setContentKey(contentKey).setNetworkContent(encrypted);
 
 		Sha1Hash code = dataManager.put(parameters);
+		System.out.println("key:" + code);
 		keys.add(code.toString());
 	}
 

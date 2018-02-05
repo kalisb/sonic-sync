@@ -115,7 +115,7 @@ public class FileManager {
 		// process composition
 		SyncProcess process = new SyncProcess();
 
-		process.add(new DeleteFromUserProfileStep(context, networkManager));
+		//process.add(new DeleteFromUserProfileStep(context, networkManager));
 		process.add(createNotificationProcess(context, Operations.DELETE));
 
 		process.execute();

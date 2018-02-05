@@ -1,7 +1,14 @@
 package sonic.sync.core.security;
 
-public class UserPermission {
+import java.io.Serializable;
+
+public class UserPermission implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public UserPermission(String creatorName, PermissionType write) {
 		// TODO Auto-generated constructor stub
 	}

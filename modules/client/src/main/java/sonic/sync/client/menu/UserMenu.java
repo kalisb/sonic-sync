@@ -39,9 +39,8 @@ public class UserMenu extends ConsoleMenu {
 
 		createRootDirectory = new ConsoleMenuItem("Create Root Directory") {
 			protected void execute() throws Exception {
-
-				rootDirectory = new File(FileUtils.getUserDirectory(), "Sync_"
-						+ menus.getUserMenu().getUserCredentials().getUserId() + "_" + System.currentTimeMillis());
+				String directory = askDirectory();
+				rootDirectory = new File(FileUtils.getUserDirectory(), directory);
 
 				if (!Files.exists(rootDirectory.toPath(), LinkOption.NOFOLLOW_LINKS)) {
 					try {
@@ -56,6 +55,11 @@ public class UserMenu extends ConsoleMenu {
 				}
 			}
 		};
+	}
+	
+	private String askDirectory() {
+		print("Specify the user root directory:");
+		return awaitStringParameter().trim();
 	}
 
 	protected String askPin() {
