@@ -1,16 +1,16 @@
 package sonic.sync.core.step;
 
 import sonic.sync.core.exception.NoSessionException;
-import sonic.sync.core.message.NetworkManager;
+import sonic.sync.core.network.NetworkManager;
 import sonic.sync.core.security.LocationsManager;
-import sonic.sync.core.security.LoginProcessContext;
+import sonic.sync.core.security.LoginProcess;
 
 public class PutLocationsStep implements IStep {
 
 	private final NetworkManager networkManager;
-	private final LoginProcessContext context;
+	private final LoginProcess context;
 
-	public PutLocationsStep(LoginProcessContext context, NetworkManager networkManager) {
+	public PutLocationsStep(LoginProcess context, NetworkManager networkManager) {
 		this.networkManager = networkManager;
 		this.context = context;
 	}

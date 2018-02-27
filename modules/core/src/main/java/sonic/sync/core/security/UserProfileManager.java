@@ -9,12 +9,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.crypto.SecretKey;
 
-import sonic.sync.core.event.IUserProfileModification;
-import sonic.sync.core.exception.AbortModifyException;
 import sonic.sync.core.exception.GetFailedException;
 import sonic.sync.core.exception.PutFailedException;
+import sonic.sync.core.network.NetworkManager;
 import sonic.sync.core.network.PutQueueEntry;
 import sonic.sync.core.network.QueueEntry;
+import sonic.sync.core.network.data.DataManager;
 import sonic.sync.core.util.Constants;
 import sonic.sync.core.util.PasswordUtil;
 
@@ -24,7 +24,7 @@ public class UserProfileManager {
 	private static final long FAILOVER_TIMEOUT = 5 * 60 * 1000;
 	private static final int FORK_LIMIT = 2;
 
-	private final AESEncryptedVersionManager<UserProfile> versionManager;
+	//private final AESEncryptedVersionManager<UserProfile> versionManager;
 	private final UserCredentials credentials;
 
 	private final Object queueWaiter = new Object();
@@ -42,9 +42,13 @@ public class UserProfileManager {
 
 		SecretKey passwordKey = PasswordUtil.generateAESKeyFromPassword(credentials.getPassword(), credentials.getPin(),
 				Constants.KEYLENGTH_USER_PROFILE);
-		this.versionManager = new AESEncryptedVersionManager<UserProfile>(dataManager, passwordKey,
-				credentials.getProfileLocationKey(), Constants.USER_PROFILE);
+		//this.versionManager = new AESEncryptedVersionManager<UserProfile>(dataManager, passwordKey,
+		//		credentials.getProfileLocationKey(), Constants.USER_PROFILE);
 		startQueueWorker();
+	}
+
+	public UserProfileManager(NetworkManager networkManager, UserCredentials credentials) {
+		this.credentials = credentials;
 	}
 
 	public void stopQueueWorker() {
@@ -76,9 +80,9 @@ public class UserProfileManager {
 		}
 	}
 
-	public AESEncryptedVersionManager<UserProfile> getVersionManager() {
-		return versionManager;
-	}
+//	public AESEncryptedVersionManager<UserProfile> getVersionManager() {
+		//return versionManager;
+//	}
 	
 	public UserCredentials getUserCredentials() {
 		return credentials;
@@ -104,64 +108,7 @@ public class UserProfileManager {
 		}
 		return profile;
 	}
-
-	/**
-	 * Gets the user profile and allows to modify it. The call blocks until
-	 * {@link IUserProfileModification#modifyUserProfile(UserProfile)} is called or an exception is thrown.
-	 * 
-	 * @param pid the process identifier
-	 * @param modifier the implementation where the modification is done
-	 * @throws GetFailedException if the profile cannot be fetched
-	 * @throws AbortModifyException if the modification was aborted
-	 */
-	public void modifyUserProfile(String pid, IUserProfileModification modifier) throws GetFailedException,
-			PutFailedException {
-		PutQueueEntry entry = new PutQueueEntry(pid);
-		modifyQueue.add(entry);
-
-		synchronized (queueWaiter) {
-			queueWaiter.notify();
-		}
-
-		UserProfile profile;
-		try {
-			profile = entry.getUserProfile();
-			if (profile == null) {
-				throw new GetFailedException("User Profile not found");
-			}
-		} catch (GetFailedException e) {
-			// just stop the modification if an error occurs.
-			if (modifying != null && modifying.getPid().equals(pid)) {
-				modifying.abort();
-			}
-			throw e;
-		}
-
-		boolean retryPut = true;
-		int forkCounter = 0;
-		int forkWaitTime = new Random().nextInt(1000) + 500;
-		while (retryPut) {
-			// user starts modifying it
-			modifier.modifyUserProfile(profile);
-
-			// put the updated user profile
-			if (protectionKeys == null) {
-				protectionKeys = profile.getProtectionKeys();
-			}
-
-			if (modifying != null && modifying.getPid().equals(pid)) {
-				modifying.setUserProfile(profile);
-				modifying.readyToPut();
-				modifying.waitForPut();
-
-				// successfully put the user profile
-				retryPut = false;
-			} else {
-				throw new PutFailedException("Not allowed to put anymore");
-			}
-		}
-	}
-
+	
 	private class QueueWorker implements Runnable {
 
 		@Override
@@ -180,7 +127,7 @@ public class UserProfileManager {
 						}
 					}
 				} else if (modifyQueue.isEmpty()) {
-					System.err.println(readOnlyQueue.size() + " process(es) are waiting for read-only access.");
+					/*System.err.println(readOnlyQueue.size() + " process(es) are waiting for read-only access.");
 					System.err.println("Loading latest version of user profile.");
 					UserProfile userProfile = null;
 					try {
@@ -194,10 +141,10 @@ public class UserProfileManager {
 					while (!readOnlyQueue.isEmpty()) {
 						QueueEntry readOnly = readOnlyQueue.poll();
 						readOnly.setUserProfile(userProfile);
-					}
+					}*/
 				} else {
 					// a process wants to modify
-					modifying = modifyQueue.poll();
+				/*	modifying = modifyQueue.poll();
 
 					System.err.println("Process " + modifying.getPid() + " is waiting to make profile modifications.");
 
@@ -245,7 +192,7 @@ public class UserProfileManager {
 						modifying.setPutError(new PutFailedException(String.format(
 								"Too long modification. Only %s ms are allowed.", MAX_MODIFICATION_TIME)));
 						modifying.notifyPut();
-					}
+					}*/
 				}
 			}
 

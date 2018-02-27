@@ -9,23 +9,22 @@ import java.util.concurrent.TimeUnit;
 
 import sonic.sync.core.configuration.Locations;
 import sonic.sync.core.exception.NoSessionException;
-import sonic.sync.core.message.MessageManager;
-import sonic.sync.core.message.NetworkManager;
-import sonic.sync.core.message.PeerAddress;
-import sonic.sync.core.security.LoginProcessContext;
-import sonic.sync.core.security.PublicKeyManager;
+import sonic.sync.core.network.NetworkManager;
+import sonic.sync.core.network.message.MessageManager;
+import sonic.sync.core.network.message.PeerAddress;
+import sonic.sync.core.security.LoginProcess;
 import sonic.sync.core.util.Constants;
 
 public class ContactOtherClientsStep implements IStep {
 
-	private final LoginProcessContext context;
+	private final LoginProcess context;
 	private final MessageManager messageManager;
 	private final NetworkManager networkManager;
 
 	private final Map<PeerAddress, Boolean> responses = new ConcurrentHashMap<PeerAddress, Boolean>();
 	private CountDownLatch waitForResponses;
 
-	public ContactOtherClientsStep(LoginProcessContext context, NetworkManager networkManager) {
+	public ContactOtherClientsStep(LoginProcess context, NetworkManager networkManager) {
 		this.context = context;
 		this.networkManager = networkManager;
 		this.messageManager = networkManager.getMessageManager();

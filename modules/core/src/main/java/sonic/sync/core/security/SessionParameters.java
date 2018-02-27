@@ -1,58 +1,36 @@
 package sonic.sync.core.security;
 
-import sonic.sync.core.configuration.ConsoleFileAgent;
-import sonic.sync.core.file.FileAgent;
-import sonic.sync.core.network.DownloadManager;
+import java.security.KeyPair;
+
+import sonic.sync.core.file.FileManager;
 
 public class SessionParameters {
-	
+	private KeyPair keyPair;
 	private UserProfileManager profileManager;
-	private ConsoleFileAgent fileAgent;
+	private FileManager fileManager;
 
-	public SessionParameters(ConsoleFileAgent fileAgent) {
-		this.fileAgent = fileAgent;
-	}
-
-	public void setUserProfileManager(UserProfileManager userProfileManager) {
-		this.profileManager = userProfileManager;
-	}
-
-	public void setLocationsManager(LocationsManager locationsManager) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setKeyManager(PublicKeyManager keyManager) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public ConsoleFileAgent getFileAgent() {
-		return fileAgent;
-	}
-
-	public void setDownloadManager(DownloadManager downloadManager) {
-		// TODO Auto-generated method stub
-		
+	public KeyPair getKeyPair() {
+		return keyPair;
 	}
 
 	public UserProfileManager getProfileManager() {
 		return profileManager;
 	}
 
-	public LocationsManager getLocationsManager() {
-		// TODO Auto-generated method stub
-		return null;
+	public FileManager getFileManager() {
+		return fileManager;
 	}
 
-	public PublicKeyManager getKeyManager() {
-		// TODO Auto-generated method stub
-		return null;
+	public void setKeyPair(KeyPair keyPair) {
+		this.keyPair = keyPair;
 	}
 
-	public DownloadManager getDownloadManager() {
-		// TODO Auto-generated method stub
-		return null;
+	public void setFileManager(FileManager fileManager) {
+		this.fileManager = fileManager;
+	}
+
+	public void setProfileManager(UserProfileManager profileManager) {
+		this.profileManager = profileManager;
 	}
 
 }

@@ -15,6 +15,8 @@ import sonic.sync.core.configuration.Parameters;
 import sonic.sync.core.exception.PutFailedException;
 import sonic.sync.core.network.BaseNetworkContent;
 import sonic.sync.core.network.EncryptedNetworkContent;
+import sonic.sync.core.network.data.DataManager;
+import sonic.sync.core.network.data.NetworkContent;
 
 public class AESEncryptedVersionManager<T extends BaseNetworkContent> {
 
@@ -44,7 +46,7 @@ public class AESEncryptedVersionManager<T extends BaseNetworkContent> {
 		return entry;
 	}
 
-	public void put(T networkContent, KeyPair protectionKeys) throws PutFailedException {
+	public void put(NetworkContent networkContent, KeyPair protectionKeys) throws PutFailedException {
 		EncryptedNetworkContent encrypted = encryption.encryptAES(networkContent, encryptionKey);
 		/*	encrypted.setBasedOnKey(networkContent.getBasedOnKey());
 		encrypted.setVersionKey(networkContent.getVersionKey());

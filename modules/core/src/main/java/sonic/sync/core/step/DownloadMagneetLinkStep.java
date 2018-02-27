@@ -16,8 +16,8 @@ import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.swig.torrent_status;
 
 import sonic.sync.core.exception.NoSessionException;
-import sonic.sync.core.file.AddFileProcessContext;
-import sonic.sync.core.message.NetworkManager;
+import sonic.sync.core.file.process.AddFileProcessContext;
+import sonic.sync.core.network.NetworkManager;
 import zmq.io.net.tcp.TcpAddress;
 
 public class DownloadMagneetLinkStep implements IStep {

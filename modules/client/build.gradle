@@ -2,6 +2,7 @@ dependencies {
 	compile project(":modules:core")
 	compile group: 'org.bouncycastle', name: 'bcprov-jdk16', version: '1.46'
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
+	compile group: 'org.fusesource.jansi', name: 'jansi', version: '1.17'
 }
 
 task fatJar(type: Jar) {

@@ -1,7 +1,7 @@
 package sonic.sync.core.step;
 
-import sonic.sync.core.message.NotifyProcessContext;
-import sonic.sync.core.security.PublicKeyManager;
+import sonic.sync.core.network.data.PublicKeyManager;
+import sonic.sync.core.network.message.NotifyProcessContext;
 
 public class GetPublicKeysStep implements IStep {
 

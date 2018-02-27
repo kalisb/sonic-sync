@@ -1,40 +1,40 @@
 package sonic.sync.core.security;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
-import com.frostwire.jlibtorrent.Entry;
+import javax.crypto.SecretKey;
 
-import sonic.sync.core.file.FolderIndex;
-import sonic.sync.core.file.Index;
-import sonic.sync.core.network.BaseNetworkContent;
-import sonic.sync.core.security.UserPermission.PermissionType;
+import sonic.sync.core.util.*;
+import sonic.sync.core.file.FileManager;
+import sonic.sync.core.file.FileTreeNode;
+import sonic.sync.core.network.data.NetworkContent;
 
 
-public class UserProfile extends BaseNetworkContent {
+public class UserProfile extends NetworkContent {
 
 
-	private static final long serialVersionUID = -8089242126512434561L;
+	private static final long serialVersionUID = 1L;
 
 	private final String userId;
 	private final KeyPair encryptionKeys;
-	private final FolderIndex root;
-	private String tableKey;
+	private final FileTreeNode root;
 
+	public UserProfile(String userId) {
+		this(userId, EncryptionUtil.generateRSAKeyPair(Constants.KEYLENGTH_USER_KEYS), EncryptionUtil.generateProtectionKey());
+	}
 	public UserProfile(String userId, KeyPair encryptionKeys, KeyPair protectionKeys) {
-		assert userId != null;
+		if (userId == null)
+			throw new IllegalArgumentException("User id can't be null.");
+		if (encryptionKeys == null)
+			throw new IllegalArgumentException("Encryption keys can't be null.");
+		if (protectionKeys == null)
+			throw new IllegalArgumentException("Protection keys can't be null.");
 		this.userId = userId;
 		this.encryptionKeys = encryptionKeys;
-
-		// create the root node
-		root = new FolderIndex(encryptionKeys);
-		root.setProtectionKeys(protectionKeys);
-		root.addUserPermissions(new UserPermission(userId, PermissionType.WRITE));
+		root = new FileTreeNode(encryptionKeys, protectionKeys);
 	}
 
 	public String getUserId() {
@@ -49,62 +49,52 @@ public class UserProfile extends BaseNetworkContent {
 		return root.getProtectionKeys();
 	}
 
-	public FolderIndex getRoot() {
+	public FileTreeNode getRoot() {
 		return root;
 	}
-
 	protected int getContentHash() {
 		return userId.hashCode() + 21 * encryptionKeys.hashCode();
 	}
 
-	public Index getFileById(PublicKey fileId) {
+	public FileTreeNode getFileById(PublicKey fileId) {
 		return findById(root, fileId);
 	}
 
-	private Index findById(Index current, PublicKey fileId) {
-		if (current.getFilePublicKey().equals(fileId)) {
+	private FileTreeNode findById(FileTreeNode current, PublicKey fileId) {
+		if (current.getKeyPair().getPublic().equals(fileId)) {
 			return current;
 		}
 
-		Index found = null;
-		if (current instanceof FolderIndex) {
-			FolderIndex folder = (FolderIndex) current;
-			for (Index child : folder.getChildren()) {
-				found = findById(child, fileId);
-				if (found != null) {
-					return found;
-				}
+		FileTreeNode found = null;
+		for (FileTreeNode child : current.getChildren()) {
+			found = findById(child, fileId);
+			if (found != null) {
+				return found;
 			}
 		}
-
 		return found;
 	}
 
-	public Index getFileByPath(File file, File root) {
-		// holds all files in-order
-		File currentFile = new File(file.getAbsolutePath());
-		List<String> filePath = new ArrayList<String>();
-		while (!root.equals(currentFile) && currentFile != null) {
-			filePath.add(currentFile.getName());
-			currentFile = currentFile.getParentFile();
-		}
-		Collections.reverse(filePath);
-
-		FolderIndex currentIndex = this.root;
-		for (String fileName : filePath) {
-			Index child = currentIndex.getChildByName(fileName);
-			if (child == null) {
-				return null;
-			} else if (child instanceof FolderIndex) {
-				currentIndex = (FolderIndex) child;
-			} else if (child.getName().equals(file.getName())) {
-				return child;
-			}
-		}
-		return currentIndex;
+	public FileTreeNode getFileByPath(File file, FileManager fileManager) {
+		Path relativePath = fileManager.getRoot().relativize(file.toPath());
+		return getFileByPath(relativePath);
 	}
 
-	public void setLocationKey(String key) {
-		this.tableKey = key;
+	public FileTreeNode getFileByPath(Path relativePath) {
+		String[] split = relativePath.toString().split(FileManager.getFileSep());
+		FileTreeNode current = root;
+		for (int i = 0; i < split.length; i++) {
+			if (split[i].isEmpty()) {
+				continue;
+			}
+			FileTreeNode child = current.getChildByName(split[i]);
+			if (child == null) {
+				return null;
+			} else {
+				current = child;
+			}
+		}
+
+		return current;
 	}
 }

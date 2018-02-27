@@ -5,19 +5,22 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
-import sonic.sync.core.file.FileAgent;
-
-public class ConsoleFileAgent extends FileAgent {
+public class ConsoleFileAgent {
 
 	private final File cache;
+	private File root;
 
 	public ConsoleFileAgent(File root) {
-		super(root);
+		this.root = root;
 		this.cache = new File(FileUtils.getTempDirectory(), "Sync-Cache");
 	}
 
 	public void writeCache(String key, byte[] data) throws IOException {
 		FileUtils.writeByteArrayToFile(new File(cache, key), data);
+	}
+	
+	public File getRoot() {
+		return root;
 	}
 
 }

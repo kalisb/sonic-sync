@@ -19,9 +19,12 @@ import javax.crypto.ShortBufferException;
 import sonic.sync.core.network.BaseNetworkContent;
 import sonic.sync.core.network.EncryptedNetworkContent;
 import sonic.sync.core.network.HybridEncryptedContent;
+import sonic.sync.core.network.data.NetworkContent;
 import sonic.sync.core.security.EncryptionUtil.RSA_KEYLENGTH;
 import sonic.sync.core.serializer.ISerialize;
 
+import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class DefaultEncryption implements IEncryption {
@@ -50,7 +53,7 @@ public class DefaultEncryption implements IEncryption {
 	}
 
 	@Override
-	public EncryptedNetworkContent encryptAES(BaseNetworkContent content, SecretKey aesKey) {
+	public EncryptedNetworkContent encryptAES(NetworkContent content, SecretKey aesKey) {
 		byte[] serialized = null;
 		try {
 			serialized = serializer.serialize(content);
@@ -61,10 +64,8 @@ public class DefaultEncryption implements IEncryption {
 		byte[] initVector = EncryptionUtil.generateIV();
 		byte[] encryptedContent = null;
 		try {
-			encryptedContent = EncryptionUtil.encryptAES(serialized, aesKey, initVector, securityProvider, strongAES);
-		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException
-				| InvalidAlgorithmParameterException | ShortBufferException | IllegalBlockSizeException
-				| BadPaddingException e) {
+			encryptedContent = EncryptionUtil.encryptAES(serialized, aesKey, initVector);
+		} catch (DataLengthException | IllegalStateException | InvalidCipherTextException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -79,9 +80,7 @@ public class DefaultEncryption implements IEncryption {
 		try {
 			decrypted = EncryptionUtil.decryptAES(content.getCipherContent(), aesKey, content.getInitVector(),
 					securityProvider, strongAES);
-		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException
-				| InvalidAlgorithmParameterException | ShortBufferException | IllegalBlockSizeException
-				| BadPaddingException e) {
+		} catch (DataLengthException | IllegalStateException | InvalidCipherTextException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -114,7 +113,7 @@ public class DefaultEncryption implements IEncryption {
 
 	@Override
 	public KeyPair generateRSAKeyPair(RSA_KEYLENGTH length) {
-		return EncryptionUtil.generateRSAKeyPair(length, securityProvider);
+		return EncryptionUtil.generateRSAKeyPair(length);
 	}
 
 	public static PublicKey key2String(PublicKey locationKey) {

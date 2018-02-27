@@ -4,15 +4,10 @@ import java.io.IOException;
 
 import sonic.sync.client.item.ConsoleMenuItem;
 import sonic.sync.core.configuration.ConsoleFileAgent;
-import sonic.sync.core.exception.InvalidProcessStateException;
-import sonic.sync.core.exception.NoPeerConnectionException;
-import sonic.sync.core.exception.ProcessExecutionException;
 import sonic.sync.core.exception.SSException;
-import sonic.sync.core.file.FileAgent;
-import sonic.sync.core.message.Session;
+import sonic.sync.core.network.data.UserManager;
 import sonic.sync.core.security.SessionParameters;
 import sonic.sync.core.security.UserCredentials;
-import sonic.sync.core.security.UserManager;
 
 public class StartMenu extends ConsoleMenu {
 
@@ -29,7 +24,7 @@ public class StartMenu extends ConsoleMenu {
 		});
 
 		add(new ConsoleMenuItem("Login") {
-			protected boolean checkPreconditions() throws NoPeerConnectionException, InvalidProcessStateException,
+			protected boolean checkPreconditions() throws
 			InterruptedException, ClassNotFoundException, IOException {
 				if (!menus.getNodeMenu().createNetwork()) {
 					printAbortion(displayText, "Node not connected.");
@@ -50,7 +45,7 @@ public class StartMenu extends ConsoleMenu {
 				return true;
 			}
 
-			protected void execute() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, SSException {
+			protected void execute() throws InterruptedException, SSException {
 				ConsoleFileAgent fileAgent = new ConsoleFileAgent(menus.getUserMenu().getRootDirectory());
 				menus.getNodeMenu().getNode().getUserManager()
 				.executeLogin(menus.getUserMenu().getUserCredentials(), fileAgent);
@@ -105,18 +100,11 @@ public class StartMenu extends ConsoleMenu {
 		UserManager userManager = menus.getNodeMenu().getNode().getUserManager();
 		UserCredentials userCredentials = menus.getUserMenu().getUserCredentials();
 
-		if (userManager.isRegistered(userCredentials.getUserId())) {
-			return true;
-		} else {
-			ConsoleMenuItem
-			.printPrecondition("You are not registered to the network. This will now happen automatically.");
-			try {
-				userManager.executeRegisterProcess(userCredentials);
-				return true;
-			} catch (ProcessExecutionException | SSException e) {
-				return false;
-			}
-		}
+		ConsoleMenuItem
+		.printPrecondition("You are not registered to the network. This will now happen automatically.");
+		userManager.executeRegisterProcess(userCredentials);
+		return true;
+
 	}
 
 	private boolean checkLogin() {

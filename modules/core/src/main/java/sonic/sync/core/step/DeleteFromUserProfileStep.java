@@ -2,15 +2,12 @@ package sonic.sync.core.step;
 
 import java.io.File;
 
-import sonic.sync.core.exception.AbortModificationCode;
-import sonic.sync.core.exception.AbortModifyException;
 import sonic.sync.core.exception.GetFailedException;
 import sonic.sync.core.exception.NoSessionException;
-import sonic.sync.core.file.DeleteFileProcessContext;
-import sonic.sync.core.file.FolderIndex;
-import sonic.sync.core.file.IUpdateContext;
-import sonic.sync.core.file.Index;
-import sonic.sync.core.message.NetworkManager;
+import sonic.sync.core.file.FileTreeNode;
+import sonic.sync.core.file.process.DeleteFileProcessContext;
+import sonic.sync.core.file.process.IUpdateContext;
+import sonic.sync.core.network.NetworkManager;
 import sonic.sync.core.security.UserProfile;
 
 public class DeleteFromUserProfileStep implements IStep {
@@ -27,11 +24,11 @@ public class DeleteFromUserProfileStep implements IStep {
 	}
 
 	@Override
-	public void execute() throws AbortModifyException {
+	public void execute() {
 		File file = context.consumeFile();
 		File root = context.consumeRoot();
-
-		Index fileIndex = userProfile.getFileByPath(file, root);
+/*
+		FileTreeNode fileIndex = userProfile.getFileByPath(file, root);
 
 		// validate
 		if (fileIndex == null) {
@@ -53,7 +50,7 @@ public class DeleteFromUserProfileStep implements IStep {
 		parentIndex.removeChild(fileIndex);
 
 		// store for later
-		context.provideIndex(fileIndex);
+		context.provideIndex(fileIndex);*/
 	}
 
 }

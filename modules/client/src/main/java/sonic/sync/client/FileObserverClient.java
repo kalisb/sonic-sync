@@ -7,11 +7,18 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
-import sonic.sync.core.file.FileObserver;
+import sonic.sync.core.file.watcher.FileObserver;
+import sonic.sync.core.logger.SSLogger;
+import sonic.sync.core.logger.SSLoggerFactory;
 
 public class FileObserverClient {
+	
+
+private static final SSLogger logger = SSLoggerFactory.getLogger(FileObserverClient.class);
 
 	public static void main(String[] args) {
+		
+		LoggerInit.initLogger();
 
 		FileObserver watcher = new FileObserver.FileWatcherBuilder(Paths.get(
 				FileUtils.getUserDirectoryPath(), "Sync").toFile()).setInterval(1000).build();
@@ -54,7 +61,7 @@ public class FileObserverClient {
 	}
 
 	private static void printFileDetails(String event, File file) {
-		System.out.println(String.format("%s: %s\n", event, file.getAbsolutePath()));
+		logger.debug(String.format("%s: %s\n", event, file.getAbsolutePath()));
 	}
 }
 

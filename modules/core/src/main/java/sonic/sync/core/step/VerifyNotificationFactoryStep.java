@@ -1,6 +1,6 @@
 package sonic.sync.core.step;
 
-import sonic.sync.core.message.NotifyProcessContext;
+import sonic.sync.core.network.message.NotifyProcessContext;
 
 public class VerifyNotificationFactoryStep implements IStep {
 

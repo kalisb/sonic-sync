@@ -8,7 +8,6 @@ import java.util.UUID;
 import sonic.sync.client.item.ConsoleMenuItem;
 import sonic.sync.core.configuration.FileConfiguration;
 import sonic.sync.core.configuration.NetworkConfiguration;
-import sonic.sync.core.event.FileEventListener;
 import sonic.sync.core.network.Node;
 import sonic.sync.core.security.BCSecurityClassProvider;
 import sonic.sync.core.security.DefaultEncryption;
@@ -20,7 +19,6 @@ import sonic.sync.core.util.Constants;
 public class NodeMenu extends ConsoleMenu {
 
 	private ConsoleMenuItem createNetworkMenuItem;
-	private ConsoleMenuItem connectToExistingNetworkItem;
 	private Node node;
 
 	private BigInteger maxFileSize = Constants.DEFAULT_MAX_FILE_SIZE;
@@ -37,26 +35,6 @@ public class NodeMenu extends ConsoleMenu {
 				buildNode();
 				String nodeId = config.getNodeId();
 				connectNode(NetworkConfiguration.createInitial(nodeId));
-			}
-		};
-
-
-		connectToExistingNetworkItem = new ConsoleMenuItem("Connect to Existing Network") {
-			protected void execute() throws UnknownHostException {
-				String nodeID = config.getNodeId();
-
-				print("Specify Bootstrap Address:");
-				InetAddress bootstrapAddress = InetAddress.getByName(awaitStringParameter());
-
-				String bootstrapPort = "default";
-
-				buildNode();
-				NetworkConfiguration config = NetworkConfiguration.create(nodeID, bootstrapAddress);
-				if (!"default".equalsIgnoreCase(bootstrapPort)) {
-					config.setBootstrapPort(Integer.parseInt(bootstrapPort));
-				}
-
-				connectNode(config);
 			}
 		};
 
@@ -80,8 +58,6 @@ public class NodeMenu extends ConsoleMenu {
 
 			print("Network connection successfully established.");
 			// connect the event bus
-			node.getFileManager().subscribeFileEvents(new FileEventListener(node.getFileManager()), config.getPeers());
-
 			String address = config.getAddress();
 			if (!"auto".equalsIgnoreCase(address)) {
 				try {
@@ -133,7 +109,6 @@ public class NodeMenu extends ConsoleMenu {
 	@Override
 	public void addMenuItems() {
 		add(createNetworkMenuItem);
-		add(connectToExistingNetworkItem);
 
 	}
 

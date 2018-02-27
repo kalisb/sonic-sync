@@ -4,7 +4,6 @@ import java.io.File;
 
 import sonic.sync.client.item.ConsoleMenuItem;
 import sonic.sync.core.exception.GetFailedException;
-import sonic.sync.core.exception.NoPeerConnectionException;
 import sonic.sync.core.exception.NoSessionException;
 import sonic.sync.core.exception.SSException;
 
@@ -81,13 +80,13 @@ public class FileMenu extends ConsoleMenu {
 					return;
 				}
 
-				try {
+				/*try {
 					menus.getNodeMenu().getNode().getFileManager()
 					.createAddProcess(file);
 				} catch (IllegalArgumentException | NoPeerConnectionException | SSException e) {
 					System.err.println(e.getMessage());
 					e.printStackTrace();
-				}
+				}*/
 
 			}
 		});
@@ -97,14 +96,14 @@ public class FileMenu extends ConsoleMenu {
 				return menus.getUserMenu().createRootDirectory();
 			}
 
-			protected void execute() throws IllegalArgumentException, NoPeerConnectionException, NoSessionException, GetFailedException, SSException {
+			protected void execute() throws IllegalArgumentException, NoSessionException, GetFailedException, SSException {
 				File file = askForFile(true);
 				if (file == null) {
 					return;
 				}
 
-				menus.getNodeMenu().getNode().getFileManager()
-				.createDeleteProcess(file);
+				/*menus.getNodeMenu().getNode().getFileManager()
+				.createDeleteProcess(file);*/
 				// finally delete the file
 				file.delete();
 			}
@@ -115,14 +114,14 @@ public class FileMenu extends ConsoleMenu {
 				return menus.getUserMenu().createRootDirectory();
 			}
 
-			protected void execute() throws IllegalArgumentException, NoPeerConnectionException, NoSessionException, SSException{
+			protected void execute() throws IllegalArgumentException, NoSessionException, SSException{
 
 				File file = askForFile(true);
 				if (file == null) {
 					return;
 				}
-				menus.getNodeMenu().getNode().getFileManager()
-				.createUpdateProcess(file);
+				/*menus.getNodeMenu().getNode().getFileManager()
+				.createUpdateProcess(file);*/
 			}
 		});
 

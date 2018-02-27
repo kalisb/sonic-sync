@@ -1,7 +1,7 @@
 package sonic.sync.core.step;
 
-import sonic.sync.core.message.NotifyProcessContext;
-import sonic.sync.core.security.DataManager;
+import sonic.sync.core.network.data.DataManager;
+import sonic.sync.core.network.message.NotifyProcessContext;
 
 public class GetAllLocationsStep implements IStep {
 

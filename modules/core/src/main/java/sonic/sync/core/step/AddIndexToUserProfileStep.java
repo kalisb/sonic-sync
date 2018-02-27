@@ -1,6 +1,6 @@
 package sonic.sync.core.step;
 
-import sonic.sync.core.file.AddFileProcessContext;
+import sonic.sync.core.file.process.AddFileProcessContext;
 import sonic.sync.core.security.UserProfileManager;
 
 public class AddIndexToUserProfileStep implements IStep {

@@ -11,10 +11,11 @@ import com.frostwire.jlibtorrent.Entry;
 import com.frostwire.jlibtorrent.Sha1Hash;
 
 import sonic.sync.core.network.BaseNetworkContent;
+import sonic.sync.core.network.data.NetworkContent;
 
 public class Parameters {
 
-	private BaseNetworkContent networkContent;
+	private NetworkContent networkContent;
 	private KeyPair protectionKeys;
 	private String contentKey;
 	private Sha1Hash cKey;
@@ -43,12 +44,12 @@ public class Parameters {
 		return contentKey;
 	}
 
-	public Parameters setNetworkContent(BaseNetworkContent networkContent) {
+	public Parameters setNetworkContent(NetworkContent networkContent) {
 		this.networkContent = networkContent;
 		return this;
 	}
 	
-	public BaseNetworkContent getNetworkContent() {
+	public NetworkContent getNetworkContent() {
 		return networkContent;
 	}
 

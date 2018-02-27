@@ -1,7 +1,7 @@
 package sonic.sync.core.step;
 
-import sonic.sync.core.message.NetworkManager;
-import sonic.sync.core.message.NotifyProcessContext;
+import sonic.sync.core.network.NetworkManager;
+import sonic.sync.core.network.message.NotifyProcessContext;
 
 public class SendNotificationsMessageStep implements IStep {
 

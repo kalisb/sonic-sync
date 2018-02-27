@@ -1,8 +1,8 @@
 package sonic.sync.client.menu;
 
 import sonic.sync.client.item.ConsoleMenuItem;
-import sonic.sync.core.file.FileObserver;
-import sonic.sync.core.file.FileObserverListener;
+import sonic.sync.core.file.watcher.FileObserver;
+import sonic.sync.core.file.watcher.FileObserverListener;
 
 public class FileObserverMenu extends ConsoleMenu {
 
@@ -46,7 +46,6 @@ public class FileObserverMenu extends ConsoleMenu {
 				fileObserver = new FileObserver(menus.getUserMenu().getRootDirectory(), interval);
 				FileObserverListener listener = new FileObserverListener(menus.getNodeMenu().getNode().getFileManager());
 				fileObserver.addFileListener(listener);
-
 				fileObserver.start();
 				exit();
 			}

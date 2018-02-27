@@ -4,9 +4,8 @@ import java.io.File;
 import java.math.BigInteger;
 
 import sonic.sync.core.configuration.FileConfiguration;
-import sonic.sync.core.file.AddFileProcessContext;
-import sonic.sync.core.file.IUpdateContext;
-import sonic.sync.core.util.FileUtil;
+import sonic.sync.core.file.FileUtil;
+import sonic.sync.core.file.process.IUpdateContext;
 
 public class ValidateFileStep implements IStep {
 

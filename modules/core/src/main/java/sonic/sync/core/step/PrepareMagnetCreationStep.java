@@ -16,8 +16,8 @@ import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.Vectors;
 import com.frostwire.jlibtorrent.swig.entry;
 
-import sonic.sync.core.file.AddFileProcessContext;
-import sonic.sync.core.message.NetworkManager;
+import sonic.sync.core.file.process.AddFileProcessContext;
+import sonic.sync.core.network.NetworkManager;
 
 public class PrepareMagnetCreationStep implements IStep {
 	

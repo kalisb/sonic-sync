@@ -3,9 +3,8 @@ package sonic.sync.core.step;
 import java.io.File;
 
 import sonic.sync.core.exception.GetFailedException;
-import sonic.sync.core.file.AddFileProcessContext;
-import sonic.sync.core.file.FolderIndex;
-import sonic.sync.core.file.IUpdateContext;
+import sonic.sync.core.file.process.AddFileProcessContext;
+import sonic.sync.core.file.process.IUpdateContext;
 import sonic.sync.core.security.UserProfile;
 import sonic.sync.core.security.UserProfileManager;
 

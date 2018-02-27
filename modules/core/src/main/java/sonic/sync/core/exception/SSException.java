@@ -1,22 +1,14 @@
 package sonic.sync.core.exception;
 
 public class SSException extends Exception {
-	private final ErrorCode error;
+	
+	private static final long serialVersionUID = -5099216171679230489L;
 
 	public SSException() {
-		this(null, "Something is wrong with a SonicSync operation.");
+		super("Something is wrong with a SonicSync operation.");
 	}
 
 	public SSException(String message) {
-		this(null, message);
-	}
-
-	public SSException(ErrorCode error, String message) {
 		super(message);
-		this.error = error;
 	}
-
-	public ErrorCode getError() {
-		return error;
-}
 }
