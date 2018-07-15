@@ -20,7 +20,7 @@ public class UserProfile extends NetworkContent {
 
 	private final String userId;
 	private final KeyPair encryptionKeys;
-	private final FileTreeNode root;
+	private transient final FileTreeNode root;
 
 	public UserProfile(String userId) {
 		this(userId, EncryptionUtil.generateRSAKeyPair(Constants.KEYLENGTH_USER_KEYS), EncryptionUtil.generateProtectionKey());

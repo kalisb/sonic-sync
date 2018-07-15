@@ -2,12 +2,14 @@ package sonic.sync.core.step;
 
 import java.io.IOException;
 import java.security.KeyPair;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
 import com.frostwire.jlibtorrent.Sha1Hash;
 
 import sonic.sync.core.configuration.Locations;
+import sonic.sync.core.configuration.Parameters;
 import sonic.sync.core.logger.SSLogger;
 import sonic.sync.core.logger.SSLoggerFactory;
 import sonic.sync.core.network.data.DataManager;
@@ -32,9 +34,9 @@ public class GetLocationsStep implements IStep {
 		logger.debug("Get the locations for user '" + userId + "'.");
 		NetworkContent content = null;
 		try {
-			SecretKey userProfileKey = context.getNetworkManager().getDataManager().getUserProfileKey();
+			List<Sha1Hash> userProfileKey = context.getNetworkManager().getDataManager().getUserProfileKey();
 			if (userProfileKey != null) {
-				content = get(userProfileKey, userId);
+				content = get(userProfileKey.toString());
 			}
 		
 			if (content == null) {
@@ -49,9 +51,9 @@ public class GetLocationsStep implements IStep {
 		}
 	}
 
-	protected NetworkContent get(SecretKey userProfileKey, String contentKey) throws ClassNotFoundException, IOException {
+	protected NetworkContent get(String contentKey) throws ClassNotFoundException, IOException {
 		DataManager dataManager = context.getNetworkManager().getDataManager();
-		return dataManager.get(userProfileKey, contentKey);
+		return null;//dataManager.get(new Parameters().setContentKey(contentKey));
 	}
 
 }

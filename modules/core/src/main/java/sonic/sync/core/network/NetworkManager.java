@@ -20,6 +20,12 @@ import com.frostwire.jlibtorrent.Pair;
 import com.frostwire.jlibtorrent.SessionHandle;
 import com.frostwire.jlibtorrent.SessionManager;
 import com.frostwire.jlibtorrent.alerts.Alert;
+import com.frostwire.jlibtorrent.alerts.DhtAnnounceAlert;
+import com.frostwire.jlibtorrent.alerts.DhtBootstrapAlert;
+import com.frostwire.jlibtorrent.alerts.DhtImmutableItemAlert;
+import com.frostwire.jlibtorrent.alerts.DhtMutableItemAlert;
+import com.frostwire.jlibtorrent.alerts.DhtPutAlert;
+
 import sonic.sync.core.configuration.FileConfiguration;
 import sonic.sync.core.configuration.NetworkConfiguration;
 import sonic.sync.core.configuration.Serializer;
@@ -61,7 +67,6 @@ public class NetworkManager {
 	public NetworkManager(IEncryption encryption, ISerialize serializer, FileConfiguration fileConfiguration) {
 		this.encryption = encryption;
 		this.serializer = serializer;
-		System.setProperty("jlibtorrent.jni.path", "/home/kalisb/sonic-sync/modules/client/libjlibtorrent.so");
         System.out.println("Using libtorrent version: " + LibTorrent.version());
 
   		this.sessionManager = new SessionManager();
@@ -93,7 +98,7 @@ public class NetworkManager {
 				}
 			}
 		}, 0, 1000);
-
+		
 		System.out.println("Waiting for nodes in DHT (10 seconds)...");
 		boolean r;
 		try {

@@ -11,7 +11,7 @@ import sonic.sync.core.security.EncryptionUtil;
 
 public abstract class NetworkContent implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private transient static final long serialVersionUID = 1L;
 
 	/**
 	 * Some data has a version key (used to differentiate versions). Default value.

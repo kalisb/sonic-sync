@@ -2,6 +2,7 @@ package sonic.sync.core.step;
 
 import java.io.IOException;
 import java.security.KeyPair;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
@@ -10,6 +11,7 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import com.frostwire.jlibtorrent.Sha1Hash;
 
+import sonic.sync.core.configuration.Parameters;
 import sonic.sync.core.logger.SSLogger;
 import sonic.sync.core.logger.SSLoggerFactory;
 import sonic.sync.core.network.EncryptedNetworkContent;
@@ -38,7 +40,7 @@ public class GetUserProfileStep implements IStep {
 	public void execute() {
 		NetworkContent content = null;
 		try {
-			content = get(context.getNetworkManager().getDataManager().getUserProfileKey(), credentials.getUserId());
+			content = get(context.getNetworkManager().getDataManager().getUserProfileKey());
 		} catch (ClassNotFoundException | IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -64,9 +66,9 @@ public class GetUserProfileStep implements IStep {
 		}
 	}
 
-	protected NetworkContent get(SecretKey secretKey, String contentKey) throws ClassNotFoundException, IOException {
+	protected NetworkContent get(List<Sha1Hash> list) throws ClassNotFoundException, IOException {
 		DataManager dataManager = context.getNetworkManager().getDataManager();
-		return dataManager.get(secretKey, contentKey);
+		return dataManager.get(list);
 	}
 
 }

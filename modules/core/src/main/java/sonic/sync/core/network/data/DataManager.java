@@ -1,9 +1,14 @@
 package sonic.sync.core.network.data;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -34,7 +39,7 @@ public class DataManager {
 	private final ISerialize serializer;
 	private final IEncryption encryption;
 	private final SessionManager sessionManager;
-	private static SecretKey userKey;
+	private static List<Sha1Hash> userKey;
 
 	public DataManager(ZContext context, ISerialize serializer, IEncryption encryption, SessionManager sessionManager) {
 		this.serializer = serializer;
@@ -50,91 +55,63 @@ public class DataManager {
 		return encryption;
 	}
 
-	public Sha1Hash put(Parameters parameters) {
+	public List<Sha1Hash> put(Parameters parameters) {
 		return putUnblocked(parameters);
 	}
 
-	private Sha1Hash putUnblocked(Parameters parameters) {
-		// serialize with custom serializer (TomP2P would use Java serializer)
-		Entry entry = new Entry(0);
-		Entry dataToSend = null;
+	private List<Sha1Hash> putUnblocked(Parameters parameters) {
+		List<Sha1Hash> shas = new ArrayList<>();
 		try {
 			byte[] data = serializer.serialize(parameters.getNetworkContent());
-			dataToSend = entry.bdecode(data);
+			String encodeToString = Base64.getEncoder().encodeToString(data);
+			for (int j = 0; j < encodeToString.length(); j+= 500) {
+				Entry entry = new Entry(encodeToString.substring(j, 
+						j + 500 > encodeToString.length() ? encodeToString.length() : j + 500));
+				Sha1Hash sha = sessionManager.dhtPutItem(entry);
+				shas.add(sha);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		Sha1Hash sha = sessionManager.dhtPutItem(dataToSend);
 		final CountDownLatch signal = new CountDownLatch(1);
 		try {
-			signal.await(50, TimeUnit.SECONDS);
+			signal.await(60, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return sha;
+
+		return shas;
 	}
 
-	public BaseNetworkContent get(Parameters parameters) throws ClassNotFoundException, IOException {
-		byte[] data = null;
-		try {
-			data = serializer.serialize(parameters.getNetworkContent());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public NetworkContent get(Parameters parameters) throws ClassNotFoundException, IOException {
+		Sha1Hash sha  = new Sha1Hash(parameters.getContentKey());
+		Entry entry = sessionManager.dhtGetItem(sha, 150);
+		StringBuilder sb = new StringBuilder();
+		for (Entry encoded :  entry.dictionary().values()) {
+			sb.append(encoded.string());
 		}
-		Sha1Hash sha  = new Sha1Hash(Arrays.copyOf(data, 20));
-		Entry entry = sessionManager.dhtGetItem(sha, 100);
-		if (entry.swig().type() == data_type.undefined_t) {
-			return null;
-		}
-		return (BaseNetworkContent) serializer.deserialize(entry.bencode());
+		return (NetworkContent) serializer.deserialize(Base64.getDecoder().decode(
+				sb.toString()
+				));
 	}
 
-	public NetworkContent get(final SecretKey  keyPair, final String contentKey) throws ClassNotFoundException, IOException {
-		final ContentListener listener = new ContentListener(keyPair, contentKey, sessionManager, serializer);
-		final CountDownLatch latch = new CountDownLatch(1);
-		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				sessionManager.addListener(listener);
-				while (listener.getContent() == null) {
-				}
-				latch.countDown();
-			}
-		}, 1000);
-		System.out.println(keyPair);
-		try {
-			latch.await(120, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		sessionManager.removeListener(listener);
-		timer.cancel();
-		return listener.getContent();
+
+	public void setUserProfileKey(List<Sha1Hash> hash) {
+		this.userKey = hash;
 	}
 
-	public void put(String contentKey, EncryptedNetworkContent content, SecretKey encryptionKey) throws IOException {
-		Map<String, Entry> data = new HashMap<>();
-		data.put(contentKey, Entry.bdecode(serializer.serialize(content)));
-		Entry entry = Entry.fromMap(data);
-		byte[] salt = new byte[16];
-		Arrays.fill(salt,(byte)0);
-		sessionManager.dhtPutItem(encryptionKey.getEncoded(),
-				encryptionKey.getEncoded(),
-				entry,
-				salt);	
-	}
-
-	public void setUserProfileKey(SecretKey encryptionKey) {
-		this.userKey = encryptionKey;
-	}
-	
-	public SecretKey getUserProfileKey() {
+	public List<Sha1Hash> getUserProfileKey() {
 		return userKey;
+	}
+
+	public NetworkContent get(List<Sha1Hash> list) throws ClassNotFoundException, IOException {
+		StringBuilder sb = new StringBuilder();
+		for (Sha1Hash sha : list) {
+			Entry entry = sessionManager.dhtGetItem(sha, 150);
+			sb.append(entry.string());	
+		}
+		return (NetworkContent) serializer.deserialize(Base64.getDecoder().decode(sb.toString()));
 	}
 
 }

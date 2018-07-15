@@ -2,6 +2,7 @@ package sonic.sync.core.step;
 
 import java.io.IOException;
 import java.security.KeyPair;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
@@ -10,11 +11,13 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import com.frostwire.jlibtorrent.Sha1Hash;
 
+import sonic.sync.core.configuration.Parameters;
 import sonic.sync.core.exception.PutFailedException;
 import sonic.sync.core.logger.SSLogger;
 import sonic.sync.core.logger.SSLoggerFactory;
 import sonic.sync.core.network.EncryptedNetworkContent;
 import sonic.sync.core.network.data.DataManager;
+import sonic.sync.core.network.data.NetworkContent;
 import sonic.sync.core.security.EncryptionUtil;
 import sonic.sync.core.security.LoginProcess;
 import sonic.sync.core.security.UserCredentials;
@@ -58,21 +61,17 @@ public class PutUserProfileStep implements IStep {
 		}
 	}
 
-	private void put(String locationKey, String contentKey, EncryptedNetworkContent content,
+	private void put(String locationKey, String contentKey, NetworkContent content,
 			SecretKey encryptionKey) throws PutFailedException {
 
 		DataManager dataManager = context.getNetworkManager().getDataManager();
 		if (dataManager == null) {
 			throw new PutFailedException("Node is not connected");
 		}
-		try {
-			System.out.println("Size: " + encryptionKey.getEncoded().length);
-			dataManager.put(contentKey, content, encryptionKey);
-			context.getNetworkManager().getDataManager().setUserProfileKey(encryptionKey);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Parameters params = new Parameters();
+		params.setNetworkContent(content);
+		List<Sha1Hash> hash = dataManager.put(params);
+		context.getNetworkManager().getDataManager().setUserProfileKey(hash);
 	}
 
 }
